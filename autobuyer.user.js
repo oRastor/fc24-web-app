@@ -2,6 +2,7 @@
 // @name         FUT19 Autobuyer
 // @namespace    http://tampermonkey.net/
 // @version      0.1
+// @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/autobuyer.user.js
 // @description  try to take over the world!
 // @author       You
 // @match        https://www.easports.com/fifa/ultimate-team/web-app/*
