@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/menu.user.js
 // @description  try to take over the world!
 // @author       You
@@ -158,7 +158,7 @@
                 var view = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._view;
                 jQuery(view.__root.parentElement).prepend('<div id="InfoWrapper" class="NavigationBar navbar-style-landscape"><h1 class="title" style="margin-right: 0;">COINS: <span id="ab_coins">900,000</span></h1><h1 class="title" style="margin-right: 0;">ITEMS IN TRADEPILE: <span id="ab_tp">0</span></h1><h1 class="title" style="margin-right: 0;">STATUS: <span id="ab_status">IDLE</span></h1></div>');
 
-                jQuery(view.__root.parentElement).append('<div id="SearchWrapper" style="width: 50%; right: 50%"><textarea readonly id="progressAutobuyer" style="font-size: 15px; width: 100%;height: 89%;"></textarea></div>');
+                jQuery(view.__root.parentElement).append('<div id="SearchWrapper" style="width: 50%; right: 50%"><textarea readonly id="progressAutobuyer" style="font-size: 15px; width: 100%;height: 58%;"></textarea><label>Search Results:</label><br/><textarea readonly id="autoBuyerFoundLog" style="font-size: 10px; width: 100%;height: 26%;"></textarea></div>');
                 writeToLog('Autobuyer Ready');
                 updateAbCoinStat();
                 updateAbTpStat();
@@ -167,7 +167,7 @@
             if (jQuery('.search-prices').first().length) {
                 if (!jQuery('#ab_buy_price').length) {
                     jQuery('.search-prices').first().append('<div class="search-price-header"><h1 class="secondary">AB Settings:</h1><button class="flat camel-case disabled" disabled="">Clear</button></div>');
-                    jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Sell Price:</span></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_sell_price" placeholder="7000"></div></div></div>');
+                    jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Sell Price:</span><br/><small>Recieve After Tax: <span id="sell_after_tax">0</span></small></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_sell_price" placeholder="7000"></div></div></div>');
                     jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Buy Price:</span></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_buy_price" placeholder="5000"></div></div></div>');
                     jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Wait Time:<br/><small>(random second range eg. 7-15)</small>:</span></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-15"></div></div></div>');
                 }
@@ -184,6 +184,10 @@
     jQuery(document).on('click', '#search_cancel_button', function(){
         window.shouldBeSearching = false;
         window.notify('Autobyer Stopped');
+    });
+
+    jQuery(document).on('keyup', '#ab_sell_price', function(){
+        jQuery('#sell_after_tax').html((jQuery('#ab_sell_price').val() - ((parseInt(jQuery('#ab_sell_price').val()) / 100) * 5)).toLocaleString());
     });
 
     window.updateAbCoinStat = function() {
@@ -203,17 +207,29 @@
         $log.scrollTop($log[0].scrollHeight);
     };
 
+    window.writeToDebugLog = function(message) {
+        var $log = jQuery('#autoBuyerFoundLog');
+        message = "[" + new Date().toLocaleTimeString() + "] " + message + "\n";
+        $log.val($log.val() + message);
+        $log.scrollTop($log[0].scrollHeight);
+    };
+
     window.notify = function(message) {
         services.Notification.queue([message, enums.UINotificationType.POSITIVE])
     };
 
     window.getRandomWait = function() {
+        var addedTime = 0;
+        if (window.searchCount % 15 === 0) {
+            addedTime = 10000;
+        }
+
         var wait = [7, 15];
         if (jQuery('#ab_wait_time').val() !== '') {
             wait = jQuery('#ab_wait_time').val().split('-');
         }
-
-        return Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000;
+        window.searchCount++;
+        return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + 5000 + addedTime;
     };
 
     function updateAbSatus() {
@@ -226,6 +242,7 @@
     }
 
     window.hasLoadedAll = false;
+    window.searchCount = 0;
     createAbInterface();
     addTabItem();
     updateAbSatus();
