@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/menu.user.js
 // @description  try to take over the world!
 // @author       You
