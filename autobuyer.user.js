@@ -1,26 +1,30 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      0.1.1
+// @version      0.1
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/autobuyer.user.js
 // @description  try to take over the world!
-// @author       Unsworth94
+// @author       You
 // @match        https://www.easports.com/fifa/ultimate-team/web-app/*
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
-    function getMaxSearchBid(min, max) {
+    window.getMaxSearchBid = function(min, max) {
         return Math.round((Math.random() * (max - min) + min) / 1000) * 1000;
-    }
+    };
 
     window.searchFutMarket = function(sender, event, data) {
+        if (typeof window.shouldBeSearching === 'undefined') {
+            window.shouldBeSearching = true;
+        }
+
         var searchCriteria = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._viewmodel.searchCriteria;
 
         var searchData = {
             offset: 0,
-            count: 20,
+            count: 21,
             type: enums.SearchType.PLAYER,
             category: enums.SearchCategory.ANY,
             position: enums.SearchType.ANY,
@@ -42,10 +46,12 @@
         };
 
         //searchData = Object.assign(searchData, data);
-        searchCriteria.maxBid = getMaxSearchBid(300000, 800000);
+        searchCriteria.maxBid = window.getMaxSearchBid(300000, 800000);
 
         repositories.TransferMarket.search(searchCriteria).observe(this, (function(sender, data) {
-            data.items.forEach(function(player){
+            for (var i = 0; i < data.items.length; i++) {
+                var player = data.items[i];
+                console.log(player);
                 var _auction = player._auction;
 
                 var buyNowPrice = _auction.buyNowPrice;
@@ -53,19 +59,27 @@
                 var tradeId = _auction.tradeId;
                 var tradeState = _auction.tradeState;
 
+                if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val())) {
+                    writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
+                    //buyPlayer(player, buyNowPrice);
+                }
+            };
 
-                //if (buyNowPrice <= parseInt(jQuery('#ab_buy_pirce').val())) {
-                //buyPlayer(player, buyNowPrice);
-                writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + tradeId + '] ' + buyNowPrice);
-                //}
-            });
+            if (window.shouldBeSearching) {
+                //window.setTimeout(window.searchFutMarket(null, null, null), window.getRandomWait());
+            }
         }));
     }
 
     window.buyPlayer = function(player, price) {
-        services.Item.bid(player.tradeId, price).observe(this, (function(sender, data){
-            if (bidSuccess) {
-                services.Item.move(player, enums.FUTItemPile.TRANSFER);
+        services.Item.bid(player, price).observe(this, (function(sender, data){
+            var sellPrice = parseInt(jQuery('#ab_sell_price').val());
+            if (data.success) {
+                writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + price);
+                writeToLog(' -- Selling for: ' + sellPrice);
+                window.setTimeout(function() {
+                    services.Item.list(player, 150, sellPrice, 3600);
+                }, window.getRandomWait());
             }
         }));
     }
@@ -88,15 +102,5 @@
         }
 
         return leagueId;
-    }
-
-    function startBot() {
-        searchFutMarket({
-            level: enums.SearchLevel.GOLD,
-            maxBuy: 350,
-            league: getLeagueIdByAbbr('ENG 1')
-        });
-
-        window.setInterval(startBot, 10000);
     }
 })();
