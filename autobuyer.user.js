@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/autobuyer.user.js
 // @description  try to take over the world!
 // @author       You
@@ -75,10 +75,12 @@
             var sellPrice = parseInt(jQuery('#ab_sell_price').val());
             if (data.success) {
                 writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + price);
-                writeToLog(' -- Selling for: ' + sellPrice);
-                window.setTimeout(function() {
-                    services.Item.list(player, window.getSellBidPrice(sellPrice), sellPrice, 3600);
-                }, window.getRandomWait());
+                if (sellPrice !== 0) {
+                    writeToLog(' -- Selling for: ' + sellPrice);
+                    window.setTimeout(function() {
+                        services.Item.list(player, window.getSellBidPrice(sellPrice), sellPrice, 3600);
+                    }, window.getRandomWait());
+                }
             }
         }));
     }
