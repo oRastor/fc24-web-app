@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
-// @version      0.1.1
+// @version      0.1
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/menu.user.js
 // @description  try to take over the world!
-// @author       Unsworth94
+// @author       You
 // @match        https://www.easports.com/fifa/ultimate-team/web-app/*
 // @grant        none
 // ==/UserScript==
@@ -156,9 +156,9 @@
         if (window.hasLoadedAll && getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._jsClassName) {
             if (!jQuery('.SearchWrapper').length) {
                 var view = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._view;
-                jQuery(view.__root.parentElement).prepend('<div id="InfoWrapper" class="NavigationBar navbar-style-landscape"><h1 class="title" style="margin-right: 0;">COINS: <span id="ab_coins">900,000</span></h1><h1 class="title" style="margin-right: 0;">ITEMS IN TRADEPILE: <span id="ab_tp">0</span></h1><h1 class="title" style="margin-right: 0;">Profit: <span id="ab_profit">0</span></h1></div>');
+                jQuery(view.__root.parentElement).prepend('<div id="InfoWrapper" class="NavigationBar navbar-style-landscape"><h1 class="title" style="margin-right: 0;">COINS: <span id="ab_coins">900,000</span></h1><h1 class="title" style="margin-right: 0;">ITEMS IN TRADEPILE: <span id="ab_tp">0</span></h1><h1 class="title" style="margin-right: 0;">STATUS: <span id="ab_status">IDLE</span></h1></div>');
 
-                jQuery(view.__root.parentElement).append('<div id="SearchWrapper" style="width: 50%; right: 50%"><textarea readonly id="progressAutobuyer" style="font-size: 20px; width: 100%;height: 98%;"></textarea></div>');
+                jQuery(view.__root.parentElement).append('<div id="SearchWrapper" style="width: 50%; right: 50%"><textarea readonly id="progressAutobuyer" style="font-size: 15px; width: 100%;height: 89%;"></textarea></div>');
                 writeToLog('Autobuyer Ready');
                 updateAbCoinStat();
                 updateAbTpStat();
@@ -172,10 +172,19 @@
                     jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Wait Time:<br/><small>(random second range eg. 7-15)</small>:</span></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-15"></div></div></div>');
                 }
             }
+
+            if (!jQuery('#search_cancel_button').length) {
+                jQuery('#ut-search-wrapper .button-container button').first().after('<button class="btn-standard" id="search_cancel_button">Cancel</button>')
+            }
         } else {
             window.setTimeout(createAbInterface, 1000);
         }
     }
+
+    jQuery(document).on('click', '#search_cancel_button', function(){
+        window.shouldBeSearching = false;
+        window.notify('Autobyer Stopped');
+    });
 
     window.updateAbCoinStat = function() {
         jQuery('#ab_coins').html(services.User.getUser()._coins.amount.toLocaleString());
@@ -191,9 +200,33 @@
         var $log = jQuery('#progressAutobuyer');
         message = "[" + new Date().toLocaleTimeString() + "] " + message + "\n";
         $log.val($log.val() + message);
+        $log.scrollTop($log[0].scrollHeight);
     };
+
+    window.notify = function(message) {
+        services.Notification.queue([message, enums.UINotificationType.POSITIVE])
+    };
+
+    window.getRandomWait = function() {
+        var wait = [7, 15];
+        if (jQuery('#ab_wait_time').val() !== '') {
+            wait = jQuery('#ab_wait_time').val().split('-');
+        }
+
+        return Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000;
+    };
+
+    function updateAbSatus() {
+        if (window.shouldBeSearching) {
+            jQuery('#ab_status').html('RUNNING');
+        } else {
+            jQuery('#ab_status').html('IDLE');
+        }
+        window.setTimeout(updateAbSatus, 2000);
+    }
 
     window.hasLoadedAll = false;
     createAbInterface();
     addTabItem();
+    updateAbSatus();
 })();
