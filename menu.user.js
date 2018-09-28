@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/menu.user.js
 // @description  try to take over the world!
 // @author       You
@@ -156,7 +156,7 @@
         if (window.hasLoadedAll && getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._jsClassName) {
             if (!jQuery('.SearchWrapper').length) {
                 var view = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._view;
-                jQuery(view.__root.parentElement).prepend('<div id="InfoWrapper" class="NavigationBar navbar-style-landscape"><h1 class="title" style="margin-right: 0;">COINS: <span id="ab_coins">900,000</span></h1><h1 class="title" style="margin-right: 0;">ITEMS IN TRADEPILE: <span id="ab_tp">0</span></h1><h1 class="title" style="margin-right: 0;">STATUS: <span id="ab_status">IDLE</span></h1></div>');
+                jQuery(view.__root.parentElement).prepend('<div id="InfoWrapper" class="NavigationBar navbar-style-landscape"><h1 class="title" style="margin-right: 0;">COINS: <span id="ab_coins">900,000</span></h1><h1 class="title" style="margin-right: 0;">ITEMS IN TRADEPILE: <span id="ab_tp">0</span></h1><h1 class="title" style="margin-right: 0;">STATUS: <span id="ab_status">IDLE</span></h1><h1 class="title" style="margin-right: 0;">REQUEST COUNT: <span id="ab_request_count">0</span></h1></div>');
 
                 jQuery(view.__root.parentElement).append('<div id="SearchWrapper" style="width: 50%; right: 50%"><textarea readonly id="progressAutobuyer" style="font-size: 15px; width: 100%;height: 58%;"></textarea><label>Search Results:</label><br/><textarea readonly id="autoBuyerFoundLog" style="font-size: 10px; width: 100%;height: 26%;"></textarea></div>');
                 writeToLog('Autobuyer Ready');
@@ -229,6 +229,7 @@
             wait = jQuery('#ab_wait_time').val().split('-');
         }
         window.searchCount++;
+        jQuery('#ab_request_count').html(window.searchCount);
         return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + 5000 + addedTime;
     };
 
