@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/autobuyer.user.js
 // @description  try to take over the world!
 // @author       You
@@ -51,7 +51,6 @@
         repositories.TransferMarket.search(searchCriteria).observe(this, (function(sender, data) {
             for (var i = 0; i < data.items.length; i++) {
                 var player = data.items[i];
-                console.log(player);
                 var _auction = player._auction;
 
                 var buyNowPrice = _auction.buyNowPrice;
@@ -59,14 +58,14 @@
                 var tradeId = _auction.tradeId;
                 var tradeState = _auction.tradeState;
 
+                writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
                 if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val())) {
-                    writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
                     //buyPlayer(player, buyNowPrice);
                 }
             };
 
             if (window.shouldBeSearching) {
-                //window.setTimeout(window.searchFutMarket(null, null, null), window.getRandomWait());
+                window.setTimeout(function() {window.searchFutMarket(null, null, null)}, window.getRandomWait());
             }
         }));
     }
@@ -78,11 +77,31 @@
                 writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + price);
                 writeToLog(' -- Selling for: ' + sellPrice);
                 window.setTimeout(function() {
-                    services.Item.list(player, 150, sellPrice, 3600);
+                    services.Item.list(player, window.getSellBidPrice(sellPrice), sellPrice, 3600);
                 }, window.getRandomWait());
             }
         }));
     }
+
+    window.getSellBidPrice = function(bin) {
+        if (bin <= 1000) {
+            return bin - 50;
+        }
+
+        if (bin > 1000 && bin <= 10000) {
+            return bin - 100;
+        }
+
+        if (bin > 10000 && bin <= 50000) {
+            return bin - 250;
+        }
+
+        if (bin > 50000 && bin <= 100000) {
+            return bin - 500;
+        }
+
+        return bin - 1000;
+    };
 
     window.getTransferList = function() {
         services.Item.requestTransferItems().observe(this, function _onRequestItemsComplete(t, response) {
