@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT19 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/autobuyer.user.js
 // @description  try to take over the world!
 // @author       You
@@ -60,7 +60,7 @@
 
                 writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
                 if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val())) {
-                    //buyPlayer(player, buyNowPrice);
+                    buyPlayer(player, buyNowPrice);
                 }
             };
 
