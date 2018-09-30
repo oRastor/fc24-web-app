@@ -49,6 +49,8 @@
         searchCriteria.maxBid = window.getMaxSearchBid(300000, 800000);
 
         repositories.TransferMarket.search(searchCriteria).observe(this, (function(sender, data) {
+            writeToDebugLog('Received ' + data.items.length + ' items');
+
             data.items.sort(function(a, b) {
                 return a._auction.buyNowPrice - b._auction.buyNowPrice;
             });
@@ -109,11 +111,27 @@
         return bin - 1000;
     };
 
-    window.getTransferList = function() {
-        services.Item.requestTransferItems().observe(this, function _onRequestItemsComplete(t, response) {
-            jQuery('#ab_tp').html(response.data.items.length);
-            return response.data.items;
+    window.updateTransferList = function() {
+        services.Item.requestTransferItems().observe(this, function(t, response) {
+            var soldItems = response.data.items.filter(function(item) {
+                return item.getAuctionData().isSold();
+            });
+
+            var unsoldItems = response.data.items.filter(function(item) {
+                return !item.getAuctionData().isSold();
+            });
+
+            jQuery('#ab_tp').html(unsoldItems.length);
+
+            if (soldItems.length) {
+                writeToLog(soldItems.length + " items sold");
+                window.clearSoldItems();
+            }
         });
+    }
+
+    window.clearSoldItems = function() {
+        services.Item.clearSoldItems().observe(this, function(t, response) {});
     }
 
     function getLeagueIdByAbbr(abbr) {

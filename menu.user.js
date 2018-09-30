@@ -196,7 +196,7 @@
     };
 
     window.updateAbTpStat = function() {
-        window.getTransferList();
+        window.updateTransferList();
         window.setTimeout(updateAbTpStat, 15000);
     };
 
