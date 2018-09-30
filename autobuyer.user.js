@@ -49,6 +49,10 @@
         searchCriteria.maxBid = window.getMaxSearchBid(300000, 800000);
 
         repositories.TransferMarket.search(searchCriteria).observe(this, (function(sender, data) {
+            data.items.sort(function(a, b) {
+                return a._auction.buyNowPrice - b._auction.buyNowPrice;
+            });
+
             for (var i = 0; i < data.items.length; i++) {
                 var player = data.items[i];
                 var _auction = player._auction;
