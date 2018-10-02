@@ -248,7 +248,7 @@
                         '           <input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-15">' +
                         '       </div>' +
                         '   </div>' +
-                        '</div>'
+                        '</div>' +
                         '<div class="price-filter">' +
                         '   <div class="info">' +
                         '       <span class="secondary label">Min clear count:<br/><small>(clear sold items if count is not less than)</small>:</span>' +
