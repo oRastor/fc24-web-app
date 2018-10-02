@@ -16,8 +16,8 @@
     };
 
     window.searchFutMarket = function(sender, event, data) {
-        if (typeof window.shouldBeSearching === 'undefined') {
-            window.shouldBeSearching = true;
+        if (!window.autoBuyerActive) {
+            return;
         }
 
         var searchCriteria = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._viewmodel.searchCriteria;
@@ -49,41 +49,45 @@
         searchCriteria.maxBid = window.getMaxSearchBid(300000, 800000);
 
         repositories.TransferMarket.search(searchCriteria).observe(this, (function(sender, data) {
-            writeToDebugLog('Received ' + data.items.length + ' items');
+            if (data.success) {
+                writeToDebugLog('Received ' + data.items.length + ' items');
 
-            data.items.sort(function(a, b) {
-                return a._auction.buyNowPrice - b._auction.buyNowPrice;
-            });
+                data.items.sort(function(a, b) {
+                    return a._auction.buyNowPrice - b._auction.buyNowPrice;
+                });
 
-            for (var i = 0; i < data.items.length; i++) {
-                var player = data.items[i];
-                var _auction = player._auction;
+                for (var i = 0; i < data.items.length; i++) {
+                    var player = data.items[i];
+                    var _auction = player._auction;
 
-                var buyNowPrice = _auction.buyNowPrice;
-                var expires = _auction.expires;
-                var tradeId = _auction.tradeId;
-                var tradeState = _auction.tradeState;
+                    var buyNowPrice = _auction.buyNowPrice;
+                    var expires = _auction.expires;
+                    var tradeId = _auction.tradeId;
+                    var tradeState = _auction.tradeState;
 
-                writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
-                if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val())) {
-                    buyPlayer(player, buyNowPrice);
-                }
-            };
+                    writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
+                    if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val())) {
+                        buyPlayer(player, buyNowPrice);
+                    }
+                };
+            }
 
-            if (window.shouldBeSearching) {
-                window.setTimeout(function() {window.searchFutMarket(null, null, null)}, window.getRandomWait());
+            if (window.autoBuyerActive) {
+                window.searchRequestTimeout = window.setTimeout(function() {
+                    window.searchFutMarket(null, null, null);
+                }, window.getRandomWait());
             }
         }));
     }
 
     window.buyPlayer = function(player, price) {
         services.Item.bid(player, price).observe(this, (function(sender, data){
-            var sellPrice = parseInt(jQuery('#ab_sell_price').val());
             if (data.success) {
                 writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + price);
+                var sellPrice = parseInt(jQuery('#ab_sell_price').val());
                 if (sellPrice !== 0) {
                     writeToLog(' -- Selling for: ' + sellPrice);
-                    window.setTimeout(function() {
+                    window.sellRequestTimeout = window.setTimeout(function() {
                         services.Item.list(player, window.getSellBidPrice(sellPrice), sellPrice, 3600);
                     }, window.getRandomWait());
                 }
@@ -121,10 +125,16 @@
                 return !item.getAuctionData().isSold();
             });
 
-            jQuery('#ab_tp').html(unsoldItems.length);
+            jQuery('#ab_sold_items').html(soldItems.length);
+            jQuery('#ab_unsold_items').html(unsoldItems.length);
 
-            if (soldItems.length) {
-                writeToLog(soldItems.length + " items sold");
+            var minSoldCount = 10;
+            if ($('#ab_min_delete_count').val() !== '') {
+                minSoldCount = min(1, parseInt($('#ab_min_delete_count').val()));
+            }
+
+            if (soldItems.length > minSoldCount) {
+                writeToLog(soldItems.length + " item(s) sold");
                 window.clearSoldItems();
             }
         });

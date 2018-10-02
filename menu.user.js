@@ -22,6 +22,32 @@
         this._jsClassName = "UTAutoBuyerViewController";
     }
 
+    window.sellList = [];
+    window.autoBuyerActive = false;
+    window.sellRequestTimeout;
+    window.searchRequestTimeout;
+
+    window.activateAutoBuyer = function() {
+        if (window.autoBuyerActive) {
+            return;
+        }
+
+        window.autoBuyerActive = true;
+        window.searchFutMarket();
+        window.notify('Autobyer Started');
+    }
+
+    window.deactivateAutoBuyer = function() {
+        if (!window.autoBuyerActive) {
+            return;
+        }
+
+        window.autoBuyerActive = false;
+        clearTimeout(window.sellRequestTimeout);
+        clearTimeout(window.searchRequestTimeout);
+        window.notify('Autobyer Stopped');
+    }
+
     utils.JS.inherits(UTAutoBuyerViewController, UTMarketSearchFiltersViewController)
     window.UTAutoBuyerViewController.prototype.init = function init() {
         if (!this.initialized) {
@@ -34,7 +60,7 @@
                 this._viewmodel.searchFeature = enums.ItemSearchFeature.MARKET;
             var view = this.getView();
             view.addTarget(this, this._eResetSelected, UTMarketSearchFiltersView.Event.RESET),
-                view.addTarget(this, window.searchFutMarket, UTMarketSearchFiltersView.Event.SEARCH),
+                view.addTarget(this, window.activateAutoBuyer, UTMarketSearchFiltersView.Event.SEARCH),
                 view.addTarget(this, this._eFilterChanged, UTMarketSearchFiltersView.Event.FILTER_CHANGE),
                 view.addTarget(this, this._eMinBidPriceChanged, UTMarketSearchFiltersView.Event.MIN_BID_PRICE_CHANGE),
                 view.addTarget(this, this._eMaxBidPriceChanged, UTMarketSearchFiltersView.Event.MAX_BID_PRICE_CHANGE),
@@ -147,7 +173,7 @@
         }
     };
 
-    function createAbInterface()
+    function createAutoBuyerInterface()
     {
         if (jQuery('h1.title').html() == 'Home') {
             window.hasLoadedAll = true;
@@ -156,20 +182,84 @@
         if (window.hasLoadedAll && getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._jsClassName) {
             if (!jQuery('.SearchWrapper').length) {
                 var view = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._view;
-                jQuery(view.__root.parentElement).prepend('<div id="InfoWrapper" class="NavigationBar navbar-style-landscape"><h1 class="title" style="margin-right: 0;">COINS: <span id="ab_coins">900,000</span></h1><h1 class="title" style="margin-right: 0;">ITEMS IN TRADEPILE: <span id="ab_tp">0</span></h1><h1 class="title" style="margin-right: 0;">STATUS: <span id="ab_status">IDLE</span></h1><h1 class="title" style="margin-right: 0;">REQUEST COUNT: <span id="ab_request_count">0</span></h1></div>');
+                jQuery(view.__root.parentElement).prepend(
+                    '<div id="InfoWrapper" class="NavigationBar navbar-style-landscape">' + 
+                    '   <h1 class="title">AUTOBUYER STATUS: <span id="ab_status"></span> | REQUEST COUNT: <span id="ab_request_count">0</span></h1>' + 
+                    '   <div class="view-navbar-currency" style="">' + 
+                    '       <div class="view-navbar-currency-coins" id="ab_coins">-</div>' + 
+                    '   </div>' +
+                    '   <div class="view-navbar-clubinfo">' + 
+                    '       <div class="view-navbar-clubinfo-data">' +
+                    '           <span class="view-navbar-clubinfo-name">Sold Items: <span id="ab_sold_items">0</span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Unsold Items: <span id="ab_unsold_items">0</span></span>' +
+                    '       </div>' +
+                    '   </div>' +
+                    '   <div class="view-navbar-clubinfo" style="border: none;">' + 
+                    '       <div class="view-navbar-clubinfo-data">' +
+                    '           <span class="view-navbar-clubinfo-name">Available Items: -</span>' +
+                    '           <span class="view-navbar-clubinfo-name">Active transfers: -</span>' +
+                    '       </div>' +
+                    '   </div>' +
+                    '</div>'
+                );
 
                 jQuery(view.__root.parentElement).append('<div id="SearchWrapper" style="width: 50%; right: 50%"><textarea readonly id="progressAutobuyer" style="font-size: 15px; width: 100%;height: 58%;"></textarea><label>Search Results:</label><br/><textarea readonly id="autoBuyerFoundLog" style="font-size: 10px; width: 100%;height: 26%;"></textarea></div>');
+                
+                setInterval(updateAutoBuyerCoinStatistics, 2500);
+                setInterval(updateAutoTransferListStat, 15000);
+                setInterval(updateAutoBuyerSatus, 1000);
+
                 writeToLog('Autobuyer Ready');
-                updateAbCoinStat();
-                updateAbTpStat();
             }
 
             if (jQuery('.search-prices').first().length) {
                 if (!jQuery('#ab_buy_price').length) {
-                    jQuery('.search-prices').first().append('<div class="search-price-header"><h1 class="secondary">AB Settings:</h1><button class="flat camel-case disabled" disabled="">Clear</button></div>');
-                    jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Sell Price:</span><br/><small>Recieve After Tax: <span id="sell_after_tax">0</span></small></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_sell_price" placeholder="7000"></div></div></div>');
-                    jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Buy Price:</span></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_buy_price" placeholder="5000"></div></div></div>');
-                    jQuery('.search-prices').first().append('<div class="price-filter"><div class="info"><span class="secondary label">Wait Time:<br/><small>(random second range eg. 7-15)</small>:</span></div><div class="buttonInfo bidSpinner"><div class="inputBox"><input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-15"></div></div></div>');
+                    jQuery('.search-prices').first().append(
+                        '<div class="search-price-header">' + 
+                        '   <h1 class="secondary">AB Settings:</h1>'+
+                        '   <button class="flat camel-case disabled" disabled="">Clear</button>' + 
+                        '</div>' +
+                        '<div class="price-filter">' + 
+                        '   <div class="info">' + 
+                        '       <span class="secondary label">Sell Price:</span><br/><small>Recieve After Tax: <span id="sell_after_tax">0</span></small>' + 
+                        '   </div>' + 
+                        '   <div class="buttonInfo bidSpinner">' +
+                        '       <div class="inputBox">' + 
+                        '           <input type="tel" class="numericInput" id="ab_sell_price" placeholder="7000">' + 
+                        '       </div>' + 
+                        '   </div>' +
+                        '</div>' +
+                        '<div class="price-filter">' +
+                        '   <div class="info">' + 
+                        '       <span class="secondary label">Buy Price:</span>' + 
+                        '   </div>' + 
+                        '   <div class="buttonInfo bidSpinner">' + 
+                        '       <div class="inputBox">' + 
+                        '           <input type="tel" class="numericInput" id="ab_buy_price" placeholder="5000">' + 
+                        '       </div>' + 
+                        '   </div>' +
+                        '</div>' +
+                        '<div class="price-filter">' +
+                        '   <div class="info">' +
+                        '       <span class="secondary label">Wait Time:<br/><small>(random second range eg. 7-15)</small>:</span>' +
+                        '   </div>' +
+                        '   <div class="buttonInfo bidSpinner">' +
+                        '       <div class="inputBox">' +
+                        '           <input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-15">' +
+                        '       </div>' +
+                        '   </div>' +
+                        '</div>'
+                        '<div class="price-filter">' +
+                        '   <div class="info">' +
+                        '       <span class="secondary label">Min clear count:<br/><small>(clear sold items if count is not less than)</small>:</span>' +
+                        '   </div>' +
+                        '   <div class="buttonInfo bidSpinner">' +
+                        '       <div class="inputBox">' +
+                        '           <input type="tel" class="numericInput" id="ab_min_delete_count" placeholder="10">' +
+                        '       </div>' +
+                        '   </div>' +
+                        '</div>'
+                    );
                 }
             }
 
@@ -177,27 +267,30 @@
                 jQuery('#ut-search-wrapper .button-container button').first().after('<button class="btn-standard" id="search_cancel_button">Cancel</button>')
             }
         } else {
-            window.setTimeout(createAbInterface, 1000);
+            window.setTimeout(createAutoBuyerInterface, 1000);
         }
     }
 
-    jQuery(document).on('click', '#search_cancel_button', function(){
-        window.shouldBeSearching = false;
-        window.notify('Autobyer Stopped');
-    });
+    jQuery(document).on('click', '#search_cancel_button', deactivateAutoBuyer);
 
     jQuery(document).on('keyup', '#ab_sell_price', function(){
         jQuery('#sell_after_tax').html((jQuery('#ab_sell_price').val() - ((parseInt(jQuery('#ab_sell_price').val()) / 100) * 5)).toLocaleString());
     });
 
-    window.updateAbCoinStat = function() {
+    window.updateAutoBuyerCoinStatistics = function() {
+        if (!window.autoBuyerActive) {
+            return;
+        }
+
         jQuery('#ab_coins').html(services.User.getUser()._coins.amount.toLocaleString());
-        window.setTimeout(updateAbCoinStat, 2500);
     };
 
-    window.updateAbTpStat = function() {
+    window.updateAutoTransferListStat = function() {
+        if (!window.autoBuyerActive) {
+            return;
+        }
+
         window.updateTransferList();
-        window.setTimeout(updateAbTpStat, 15000);
     };
 
     window.writeToLog = function(message) {
@@ -233,18 +326,16 @@
         return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + 5000 + addedTime;
     };
 
-    function updateAbSatus() {
-        if (window.shouldBeSearching) {
-            jQuery('#ab_status').html('RUNNING');
+    function updateAutoBuyerSatus() {
+        if (window.autoBuyerActive) {
+            jQuery('#ab_status').css('color', '#2cbe2d').html('RUNNING');
         } else {
-            jQuery('#ab_status').html('IDLE');
+            jQuery('#ab_status').css('color', 'red').html('IDLE');
         }
-        window.setTimeout(updateAbSatus, 2000);
     }
 
     window.hasLoadedAll = false;
     window.searchCount = 0;
-    createAbInterface();
+    createAutoBuyerInterface();
     addTabItem();
-    updateAbSatus();
 })();
