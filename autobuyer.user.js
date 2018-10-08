@@ -83,7 +83,7 @@
     window.buyPlayer = function(player, price) {
         services.Item.bid(player, price).observe(this, (function(sender, data){
             if (data.success) {
-                writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + price);
+                writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + price + ' buyed');
                 var sellPrice = parseInt(jQuery('#ab_sell_price').val());
                 if (sellPrice !== 0) {
                     writeToLog(' -- Selling for: ' + sellPrice);
@@ -91,6 +91,8 @@
                         services.Item.list(player, window.getSellBidPrice(sellPrice), sellPrice, 3600);
                     }, window.getRandomWait());
                 }
+            } else {
+                writeToLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + price + ' buy failed');
             }
         }));
     }
@@ -133,7 +135,11 @@
                 minSoldCount = min(1, parseInt($('#ab_min_delete_count').val()));
             }
 
-            if (soldItems.length > minSoldCount) {
+            for (item in soldItems) {
+
+            }
+
+            if (soldItems.length >= minSoldCount) {
                 writeToLog(soldItems.length + " item(s) sold");
                 window.clearSoldItems();
             }
