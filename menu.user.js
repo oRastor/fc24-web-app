@@ -190,14 +190,14 @@
                     '   </div>' +
                     '   <div class="view-navbar-clubinfo">' + 
                     '       <div class="view-navbar-clubinfo-data">' +
-                    '           <span class="view-navbar-clubinfo-name">Sold Items: <span id="ab_sold_items">0</span></span>' +
-                    '           <span class="view-navbar-clubinfo-name">Unsold Items: <span id="ab_unsold_items">0</span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Sold Items: <span id="ab-sold-items">0</span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Unsold Items: <span id="ab-unsold-items">0</span></span>' +
                     '       </div>' +
                     '   </div>' +
                     '   <div class="view-navbar-clubinfo" style="border: none;">' + 
                     '       <div class="view-navbar-clubinfo-data">' +
-                    '           <span class="view-navbar-clubinfo-name">Available Items: -</span>' +
-                    '           <span class="view-navbar-clubinfo-name">Active transfers: -</span>' +
+                    '           <span class="view-navbar-clubinfo-name">Available Items: <span id="ab-available-items">0</span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Active transfers: <span id="ab-active-transfers">0</span></span>' +
                     '       </div>' +
                     '   </div>' +
                     '</div>'
