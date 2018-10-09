@@ -136,8 +136,8 @@
             });
 
             jQuery('#ab-sold-items').html(soldItems.length);
-            jQuery('#ab-unsold-items').html(soldItems.length);
-            jQuery('#ab-available-items').html(activeTransfers.length);
+            jQuery('#ab-unsold-items').html(unsoldItems.length);
+            jQuery('#ab-available-items').html(availableItems.length);
             jQuery('#ab-active-transfers').html(activeTransfers.length);
 
             var minSoldCount = 10;
