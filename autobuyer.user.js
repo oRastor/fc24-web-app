@@ -128,7 +128,7 @@
             });
 
             var activeTransfers = response.data.items.filter(function(item) {
-                return !item.getAuctionData().isSelling();
+                return item.getAuctionData().isSelling();
             });
 
             var availableItems = response.data.items.filter(function(item) {
