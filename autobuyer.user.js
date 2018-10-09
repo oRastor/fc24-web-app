@@ -124,19 +124,25 @@
             });
 
             var unsoldItems = response.data.items.filter(function(item) {
-                return !item.getAuctionData().isSold();
+                return !item.getAuctionData().isSold() && item.getAuctionData().isExpired();
             });
 
-            jQuery('#ab_sold_items').html(soldItems.length);
-            jQuery('#ab_unsold_items').html(unsoldItems.length);
+            var activeTransfers = response.data.items.filter(function(item) {
+                return !item.getAuctionData().isSelling();
+            });
+
+            var availableItems = response.data.items.filter(function(item) {
+                return item.getAuctionData().isInactive();
+            });
+
+            jQuery('#ab-sold-items').html(soldItems.length);
+            jQuery('#ab-unsold-items').html(soldItems.length);
+            jQuery('#ab-available-items').html(activeTransfers.length);
+            jQuery('#ab-active-transfers').html(activeTransfers.length);
 
             var minSoldCount = 10;
             if ($('#ab_min_delete_count').val() !== '') {
                 minSoldCount = min(1, parseInt($('#ab_min_delete_count').val()));
-            }
-
-            for (item in soldItems) {
-
             }
 
             if (soldItems.length >= minSoldCount) {
