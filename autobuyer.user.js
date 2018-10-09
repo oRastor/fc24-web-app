@@ -140,6 +140,18 @@
             jQuery('#ab-available-items').html(availableItems.length);
             jQuery('#ab-active-transfers').html(activeTransfers.length);
 
+            if (unsoldItems.length) {
+                jQuery('#ab-unsold-items').css('color', 'red');
+            } else {
+                jQuery('#ab-unsold-items').css('color', '');
+            }
+
+            if (availableItems.length) {
+                jQuery('#ab-available-items').css('color', 'orange');
+            } else {
+                jQuery('#ab-available-items').css('color', '');
+            }
+
             var minSoldCount = 10;
             if ($('#ab_min_delete_count').val() !== '') {
                 minSoldCount = min(1, parseInt($('#ab_min_delete_count').val()));
