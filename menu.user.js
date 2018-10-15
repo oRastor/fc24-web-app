@@ -2,7 +2,7 @@
 // @name         FUT19 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
 // @version      0.4
-// @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/menu.user.js
+// @updateURL    https://github.com/oRastor/fut19-web-app/raw/master/menu.user.js
 // @description  try to take over the world!
 // @author       You
 // @match        https://www.easports.com/fifa/ultimate-team/web-app/*
@@ -24,8 +24,6 @@
 
     window.sellList = [];
     window.autoBuyerActive = false;
-    window.sellRequestTimeout;
-    window.searchRequestTimeout;
 
     window.activateAutoBuyer = function() {
         if (window.autoBuyerActive) {
@@ -33,7 +31,6 @@
         }
 
         window.autoBuyerActive = true;
-        window.searchFutMarket();
         window.notify('Autobyer Started');
     }
 
@@ -43,8 +40,6 @@
         }
 
         window.autoBuyerActive = false;
-        clearTimeout(window.sellRequestTimeout);
-        clearTimeout(window.searchRequestTimeout);
         window.notify('Autobyer Stopped');
     }
 
@@ -185,29 +180,41 @@
                 jQuery(view.__root.parentElement).prepend(
                     '<div id="InfoWrapper" class="NavigationBar navbar-style-landscape">' + 
                     '   <h1 class="title">AUTOBUYER STATUS: <span id="ab_status"></span> | REQUEST COUNT: <span id="ab_request_count">0</span></h1>' + 
-                    '   <div class="view-navbar-currency" style="">' + 
-                    '       <div class="view-navbar-currency-coins" id="ab_coins">-</div>' + 
+                    '   <div class="view-navbar-clubinfo">' +
+                    '       <div class="view-navbar-clubinfo-data">' +
+                    '           <div class="view-navbar-clubinfo-name">' +
+                    '               <div style="float: left;">Search:</div>' +
+                    '               <div style="float: right; height: 10px; width: 100px; background: #888; margin: 5px 0px 5px 5px;">' +
+                    '                   <div id="ab_search_progress" style="background: #000; height: 10px; width: 0%"></div>' +
+                    '               </div>' +
+                    '           </div>' +
+                    '           <div class="view-navbar-clubinfo-name">' +
+                    '               <div style="float: left;">Statistics:</div>' +
+                    '               <div style="float: right; height: 10px; width: 100px; background: #888; margin: 5px 0px 5px 5px;">' +
+                    '                   <div id="ab_statistics_progress" style="background: #000; height: 10px; width: 0%"></div>' +
+                    '               </div>' +
+                    '           </div>' +
+                    '       </div>' +
+                    '   </div>' +
+                    '   <div class="view-navbar-currency" style="margin-left: 10px;">' + 
+                    '       <div class="view-navbar-currency-coins" id="ab_coins"></div>' + 
                     '   </div>' +
                     '   <div class="view-navbar-clubinfo">' + 
                     '       <div class="view-navbar-clubinfo-data">' +
-                    '           <span class="view-navbar-clubinfo-name">Sold Items: <span id="ab-sold-items">0</span></span>' +
-                    '           <span class="view-navbar-clubinfo-name">Unsold Items: <span id="ab-unsold-items">0</span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Sold Items: <span id="ab-sold-items"></span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Unsold Items: <span id="ab-unsold-items"></span></span>' +
                     '       </div>' +
                     '   </div>' +
                     '   <div class="view-navbar-clubinfo" style="border: none;">' + 
                     '       <div class="view-navbar-clubinfo-data">' +
-                    '           <span class="view-navbar-clubinfo-name">Available Items: <span id="ab-available-items">0</span></span>' +
-                    '           <span class="view-navbar-clubinfo-name">Active transfers: <span id="ab-active-transfers">0</span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Available Items: <span id="ab-available-items"></span></span>' +
+                    '           <span class="view-navbar-clubinfo-name">Active transfers: <span id="ab-active-transfers"></span></span>' +
                     '       </div>' +
                     '   </div>' +
                     '</div>'
                 );
 
                 jQuery(view.__root.parentElement).append('<div id="SearchWrapper" style="width: 50%; right: 50%"><textarea readonly id="progressAutobuyer" style="font-size: 15px; width: 100%;height: 58%;"></textarea><label>Search Results:</label><br/><textarea readonly id="autoBuyerFoundLog" style="font-size: 10px; width: 100%;height: 26%;"></textarea></div>');
-                
-                setInterval(updateAutoBuyerCoinStatistics, 2500);
-                setInterval(updateAutoTransferListStat, 15000);
-                setInterval(updateAutoBuyerSatus, 1000);
 
                 writeToLog('Autobuyer Ready');
             }
@@ -217,13 +224,12 @@
                     jQuery('.search-prices').first().append(
                         '<div class="search-price-header">' + 
                         '   <h1 class="secondary">AB Settings:</h1>'+
-                        '   <button class="flat camel-case disabled" disabled="">Clear</button>' + 
                         '</div>' +
                         '<div class="price-filter">' + 
                         '   <div class="info">' + 
                         '       <span class="secondary label">Sell Price:</span><br/><small>Recieve After Tax: <span id="sell_after_tax">0</span></small>' + 
                         '   </div>' + 
-                        '   <div class="buttonInfo bidSpinner">' +
+                        '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' + 
                         '           <input type="tel" class="numericInput" id="ab_sell_price" placeholder="7000">' + 
                         '       </div>' + 
@@ -233,7 +239,7 @@
                         '   <div class="info">' + 
                         '       <span class="secondary label">Buy Price:</span>' + 
                         '   </div>' + 
-                        '   <div class="buttonInfo bidSpinner">' + 
+                        '   <div class="buttonInfo">' + 
                         '       <div class="inputBox">' + 
                         '           <input type="tel" class="numericInput" id="ab_buy_price" placeholder="5000">' + 
                         '       </div>' + 
@@ -243,7 +249,7 @@
                         '   <div class="info">' +
                         '       <span class="secondary label">Wait Time:<br/><small>(random second range eg. 7-15)</small>:</span>' +
                         '   </div>' +
-                        '   <div class="buttonInfo bidSpinner">' +
+                        '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' +
                         '           <input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-15">' +
                         '       </div>' +
@@ -253,9 +259,19 @@
                         '   <div class="info">' +
                         '       <span class="secondary label">Min clear count:<br/><small>(clear sold items if count is not less than)</small>:</span>' +
                         '   </div>' +
-                        '   <div class="buttonInfo bidSpinner">' +
+                        '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' +
                         '           <input type="tel" class="numericInput" id="ab_min_delete_count" placeholder="10">' +
+                        '       </div>' +
+                        '   </div>' +
+                        '</div>' +
+                        '<div class="price-filter">' +
+                        '   <div class="info">' +
+                        '       <span class="secondary label">Max purchases per search request:</span>' +
+                        '   </div>' +
+                        '   <div class="buttonInfo">' +
+                        '       <div class="inputBox">' +
+                        '           <input type="text" class="numericInput" id="ab_max_purchases" placeholder="3">' +
                         '       </div>' +
                         '   </div>' +
                         '</div>'
@@ -276,14 +292,6 @@
     jQuery(document).on('keyup', '#ab_sell_price', function(){
         jQuery('#sell_after_tax').html((jQuery('#ab_sell_price').val() - ((parseInt(jQuery('#ab_sell_price').val()) / 100) * 5)).toLocaleString());
     });
-
-    window.updateAutoBuyerCoinStatistics = function() {
-        if (!window.autoBuyerActive) {
-            return;
-        }
-
-        jQuery('#ab_coins').html(services.User.getUser()._coins.amount.toLocaleString());
-    };
 
     window.updateAutoTransferListStat = function() {
         if (!window.autoBuyerActive) {
@@ -322,17 +330,46 @@
             wait = jQuery('#ab_wait_time').val().split('-');
         }
         window.searchCount++;
-        jQuery('#ab_request_count').html(window.searchCount);
         return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + 5000 + addedTime;
     };
 
-    function updateAutoBuyerSatus() {
+    window.getTimerProgress = function (timer) {
+        var time = (new Date()).getTime();
+
+        return (Math.max(0, timer.finish - time) / (timer.finish - timer.start)) * 100;
+    };
+
+    window.updateStatistics = function () {
+        jQuery('#ab_search_progress').css('width', window.getTimerProgress(window.timers.search));
+        jQuery('#ab_statistics_progress').css('width', window.getTimerProgress(window.timers.transferList));
+
+        jQuery('#ab_request_count').html(window.searchCount);
+
+        jQuery('#ab_coins').html(window.futStatistics.coins);
+
         if (window.autoBuyerActive) {
             jQuery('#ab_status').css('color', '#2cbe2d').html('RUNNING');
         } else {
             jQuery('#ab_status').css('color', 'red').html('IDLE');
         }
-    }
+
+        jQuery('#ab-sold-items').html(window.futStatistics.soldItems);
+        jQuery('#ab-unsold-items').html(window.futStatistics.unsoldItems);
+        jQuery('#ab-available-items').html(window.futStatistics.availableItems);
+        jQuery('#ab-active-transfers').html(window.futStatistics.activeTransfers);
+
+        if (window.futStatistics.unsoldItems) {
+            jQuery('#ab-unsold-items').css('color', 'red');
+        } else {
+            jQuery('#ab-unsold-items').css('color', '');
+        }
+
+        if (window.futStatistics.availableItems) {
+            jQuery('#ab-available-items').css('color', 'orange');
+        } else {
+            jQuery('#ab-available-items').css('color', '');
+        }
+    };
 
     window.hasLoadedAll = false;
     window.searchCount = 0;

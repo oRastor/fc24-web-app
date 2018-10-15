@@ -2,7 +2,7 @@
 // @name         FUT19 Autobuyer
 // @namespace    http://tampermonkey.net/
 // @version      0.5
-// @updateURL    https://github.com/Unsworth94/fut19-web-app/raw/master/autobuyer.user.js
+// @updateURL    https://github.com/oRastor/fut19-web-app/raw/master/autobuyer.user.js
 // @description  try to take over the world!
 // @author       You
 // @match        https://www.easports.com/fifa/ultimate-team/web-app/*
@@ -14,6 +14,59 @@
     window.getMaxSearchBid = function(min, max) {
         return Math.round((Math.random() * (max - min) + min) / 1000) * 1000;
     };
+
+    window.searchCount = 0;
+
+    window.initStatisics = function() {
+        window.futStatistics = {
+            soldItems: '-',
+            unsoldItems: '-',
+            activeTransfers: '-',
+            availableItems: '-',
+            coins: '-',
+        };
+
+        window.timers = {
+            search: window.createTimeout(0, 0),
+            coins: window.createTimeout(0, 0),
+            transferList: window.createTimeout(0, 0),
+        };
+    };
+
+    window.createTimeout = function(time, interval) {
+        return {
+            start: time,
+            finish: time + interval,
+        };
+    };
+
+    window.processor = window.setInterval(function() {
+        if (window.autoBuyerActive) {
+            var time = (new Date()).getTime();
+
+            if (window.timers.search.finish == 0 || window.timers.search.finish <= time) {
+                window.searchFutMarket(null, null, null);
+
+                window.timers.search = window.createTimeout(time, window.getRandomWait());
+            }
+
+            if (window.timers.coins.finish == 0 || window.timers.coins.finish <= time) {
+                window.futStatistics.coins = services.User.getUser()._coins.amount.toLocaleString();
+                
+                window.timers.coins = window.createTimeout(time, 2500);
+            }
+
+            if (window.timers.transferList.finish == 0 || window.timers.transferList.finish <= time) {
+                window.updateTransferList();
+                
+                window.timers.transferList = window.createTimeout(time, 30000);
+            }
+        } else {
+            window.initStatisics();
+        }
+
+        window.updateStatistics();
+    }, 500);
 
     window.searchFutMarket = function(sender, event, data) {
         if (!window.autoBuyerActive) {
@@ -52,6 +105,11 @@
             if (data.success) {
                 writeToDebugLog('Received ' + data.items.length + ' items');
 
+                var maxPurchases = 3;
+                if ($('#ab_max_purchases').val() !== '') {
+                    maxPurchases = Math.max(1, parseInt($('#ab_max_purchases').val()));
+                }
+
                 data.items.sort(function(a, b) {
                     return a._auction.buyNowPrice - b._auction.buyNowPrice;
                 });
@@ -66,16 +124,10 @@
                     var tradeState = _auction.tradeState;
 
                     writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
-                    if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val())) {
+                    if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val()) && --maxPurchases >= 0) {
                         buyPlayer(player, buyNowPrice);
                     }
                 };
-            }
-
-            if (window.autoBuyerActive) {
-                window.searchRequestTimeout = window.setTimeout(function() {
-                    window.searchFutMarket(null, null, null);
-                }, window.getRandomWait());
             }
         }));
     }
@@ -119,46 +171,29 @@
 
     window.updateTransferList = function() {
         services.Item.requestTransferItems().observe(this, function(t, response) {
-            var soldItems = response.data.items.filter(function(item) {
+            window.futStatistics.soldItems = response.data.items.filter(function(item) {
                 return item.getAuctionData().isSold();
-            });
+            }).length;
 
-            var unsoldItems = response.data.items.filter(function(item) {
+            window.futStatistics.unsoldItems = response.data.items.filter(function(item) {
                 return !item.getAuctionData().isSold() && item.getAuctionData().isExpired();
-            });
+            }).length;
 
-            var activeTransfers = response.data.items.filter(function(item) {
+            window.futStatistics.activeTransfers = response.data.items.filter(function(item) {
                 return item.getAuctionData().isSelling();
-            });
+            }).length;
 
-            var availableItems = response.data.items.filter(function(item) {
+            window.futStatistics.availableItems = response.data.items.filter(function(item) {
                 return item.getAuctionData().isInactive();
-            });
-
-            jQuery('#ab-sold-items').html(soldItems.length);
-            jQuery('#ab-unsold-items').html(unsoldItems.length);
-            jQuery('#ab-available-items').html(availableItems.length);
-            jQuery('#ab-active-transfers').html(activeTransfers.length);
-
-            if (unsoldItems.length) {
-                jQuery('#ab-unsold-items').css('color', 'red');
-            } else {
-                jQuery('#ab-unsold-items').css('color', '');
-            }
-
-            if (availableItems.length) {
-                jQuery('#ab-available-items').css('color', 'orange');
-            } else {
-                jQuery('#ab-available-items').css('color', '');
-            }
+            }).length;
 
             var minSoldCount = 10;
             if ($('#ab_min_delete_count').val() !== '') {
-                minSoldCount = min(1, parseInt($('#ab_min_delete_count').val()));
+                minSoldCount = Math.max(1, parseInt($('#ab_min_delete_count').val()));
             }
 
-            if (soldItems.length >= minSoldCount) {
-                writeToLog(soldItems.length + " item(s) sold");
+            if (window.futStatistics.soldItems >= minSoldCount) {
+                writeToLog(window.futStatistics.soldItems + " item(s) sold");
                 window.clearSoldItems();
             }
         });
