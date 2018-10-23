@@ -111,7 +111,13 @@
                 }
 
                 data.items.sort(function(a, b) {
-                    return a._auction.buyNowPrice - b._auction.buyNowPrice;
+                    var priceDiff = a._auction.buyNowPrice - b._auction.buyNowPrice;
+                    
+                    if (priceDiff != 0) {
+                        return priceDiff;
+                    }
+
+                    return a._auction.expires - b._auction.expires;
                 });
 
                 for (var i = 0; i < data.items.length; i++) {
@@ -119,11 +125,11 @@
                     var _auction = player._auction;
 
                     var buyNowPrice = _auction.buyNowPrice;
-                    var expires = _auction.expires;
                     var tradeId = _auction.tradeId;
                     var tradeState = _auction.tradeState;
 
-                    writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] ' + buyNowPrice);
+                    var expires = services.Localization.localizeAuctionTimeRemaining(_auction.expires);
+                    writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] [' + expires + '] ' + buyNowPrice);
                     if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val()) && --maxPurchases >= 0) {
                         buyPlayer(player, buyNowPrice);
                     }
