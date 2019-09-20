@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         FUT19 Autobuyer Menu
+// @name         FUT20 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
 // @version      0.4
-// @updateURL    https://github.com/oRastor/fut19-web-app/raw/master/menu.user.js
+// @updateURL    https://github.com/oRastor/fut20-web-app/raw/master/menu.user.js
 // @description  try to take over the world!
-// @author       You
+// @author       Rastor
 // @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
 // @grant        none
 // ==/UserScript==
@@ -178,7 +178,7 @@
             if (!jQuery('.SearchWrapper').length) {
                 var view = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._view;
                 jQuery(view.__root.parentElement).prepend(
-                    '<div id="InfoWrapper" class="NavigationBar navbar-style-landscape">' + 
+                    '<div id="InfoWrapper" class="ut-navigation-bar-view navbar-style-landscape">' +
                     '   <h1 class="title">AUTOBUYER STATUS: <span id="ab_status"></span> | REQUEST COUNT: <span id="ab_request_count">0</span></h1>' + 
                     '   <div class="view-navbar-clubinfo">' +
                     '       <div class="view-navbar-clubinfo-data">' +
