@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         FUT19 Autobuyer
+// @name         FUT20 Autobuyer
 // @namespace    http://tampermonkey.net/
 // @version      0.5
 // @updateURL    https://github.com/oRastor/fut20-web-app/raw/master/autobuyer.user.js
