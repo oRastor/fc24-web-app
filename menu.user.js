@@ -281,7 +281,7 @@
             }
 
             if (!jQuery('#search_cancel_button').length) {
-                jQuery('#ut-search-wrapper .button-container button').first().after('<button class="btn-standard" id="search_cancel_button">Cancel</button>')
+                jQuery('#InfoWrapper').next().find('.button-container button').first().after('<button class="btn-standard" id="search_cancel_button">Stop</button>')
             }
         } else {
             window.setTimeout(createAutoBuyerInterface, 1000);
