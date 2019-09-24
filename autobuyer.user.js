@@ -53,13 +53,13 @@
 
             if (window.timers.coins.finish == 0 || window.timers.coins.finish <= time) {
                 window.futStatistics.coins = services.User.getUser()._coins.amount.toLocaleString();
-                
+
                 window.timers.coins = window.createTimeout(time, 2500);
             }
 
             if (window.timers.transferList.finish == 0 || window.timers.transferList.finish <= time) {
                 window.updateTransferList();
-                
+
                 window.timers.transferList = window.createTimeout(time, 30000);
             }
         } else {
@@ -76,44 +76,22 @@
 
         var searchCriteria = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._viewmodel.searchCriteria;
 
-        var searchData = {
-            offset: 0,
-            count: 21,
-            type: enums.SearchType.PLAYER,
-            category: enums.SearchCategory.ANY,
-            position: enums.SearchType.ANY,
-            zone: enums.SearchType.ANY,
-            level: enums.SearchLevel.ANY,
-            nation: -1,
-            league: -1,
-            club: -1,
-            playStyle: -1,
-            minBid: 0,
-            maxBid: 0,
-            minBuy: 0,
-            maxBuy: 0,
-            defId: [],
-            maskedDefId: 0,
-            year: enums.SearchType.ANY,
-            untradeables: enums.SearchUntradeables.DEFAULT,
-            isExactSearch: !1
-        };
-
-        //searchData = Object.assign(searchData, data);
         searchCriteria.maxBid = window.getMaxSearchBid(300000, 800000);
 
-        repositories.TransferMarket.search(searchCriteria).observe(this, (function(sender, data) {
-            if (data.success) {
-                writeToDebugLog('Received ' + data.items.length + ' items');
+        services.Item.clearTransferMarketCache();
+
+        services.Item.searchTransferMarket(searchCriteria, 1).observe(this, (function(sender, response) {
+            if (response.success) {
+                writeToDebugLog('Received ' + response.data.items.length + ' items');
 
                 var maxPurchases = 3;
                 if ($('#ab_max_purchases').val() !== '') {
                     maxPurchases = Math.max(1, parseInt($('#ab_max_purchases').val()));
                 }
 
-                data.items.sort(function(a, b) {
+                response.data.items.sort(function(a, b) {
                     var priceDiff = a._auction.buyNowPrice - b._auction.buyNowPrice;
-                    
+
                     if (priceDiff != 0) {
                         return priceDiff;
                     }
@@ -121,16 +99,16 @@
                     return a._auction.expires - b._auction.expires;
                 });
 
-                for (var i = 0; i < data.items.length; i++) {
-                    var player = data.items[i];
-                    var _auction = player._auction;
+                for (var i = 0; i < response.data.items.length; i++) {
+                    var player = response.data.items[i];
+                    var auction = player._auction;
 
-                    var buyNowPrice = _auction.buyNowPrice;
-                    var tradeId = _auction.tradeId;
-                    var tradeState = _auction.tradeState;
+                    var buyNowPrice = auction.buyNowPrice;
+                    var tradeId = auction.tradeId;
+                    var tradeState = auction.tradeState;
 
-                    var expires = services.Localization.localizeAuctionTimeRemaining(_auction.expires);
-                    writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + player._auction.tradeId + '] [' + expires + '] ' + buyNowPrice);
+                    var expires = services.Localization.localizeAuctionTimeRemaining(auction.expires);
+                    writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + auction.tradeId + '] [' + expires + '] ' + buyNowPrice);
                     if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val()) && --maxPurchases >= 0) {
                         buyPlayer(player, buyNowPrice);
                     }
