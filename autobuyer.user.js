@@ -33,6 +33,8 @@
             transferList: window.createTimeout(0, 0),
         };
     };
+    
+    window.bids = [];
 
     window.createTimeout = function(time, interval) {
         return {
@@ -109,8 +111,17 @@
 
                     var expires = services.Localization.localizeAuctionTimeRemaining(auction.expires);
                     writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + auction.tradeId + '] [' + expires + '] ' + buyNowPrice);
-                    if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val()) && --maxPurchases >= 0) {
+                    
+                    if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val()) && --maxPurchases >= 0 && !window.bids.includes(auction.tradeId)) {
                         buyPlayer(player, buyNowPrice);
+                        
+                        if (!window.bids.includes(auction.tradeId)) {
+                            window.bids.push(auction.tradeId);
+                            
+                            if (window.bids.length > 300) {
+                                window.bids.shift();
+                            }
+                        }
                     }
                 };
             }
