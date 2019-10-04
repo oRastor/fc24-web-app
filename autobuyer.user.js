@@ -112,7 +112,7 @@
                     var expires = services.Localization.localizeAuctionTimeRemaining(auction.expires);
                     writeToDebugLog(player._staticData.firstName + ' ' + player._staticData.lastName + ' [' + auction.tradeId + '] [' + expires + '] ' + buyNowPrice);
                     
-                    if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val()) && --maxPurchases >= 0 && !window.bids.includes(auction.tradeId)) {
+                    if (buyNowPrice <= parseInt(jQuery('#ab_buy_price').val()) && !window.bids.includes(auction.tradeId) && --maxPurchases >= 0) {
                         buyPlayer(player, buyNowPrice);
                         
                         if (!window.bids.includes(auction.tradeId)) {
