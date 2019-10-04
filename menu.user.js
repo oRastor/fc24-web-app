@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT20 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.6
 // @updateURL    https://github.com/oRastor/fut20-web-app/raw/master/menu.user.js
 // @description  try to take over the world!
 // @author       Rastor
