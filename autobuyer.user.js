@@ -54,7 +54,7 @@
             }
 
             if (window.timers.coins.finish == 0 || window.timers.coins.finish <= time) {
-                window.futStatistics.coins = services.User.getUser()._coins.amount.toLocaleString();
+                window.futStatistics.coins = services.User.getUser().coins.amount.toLocaleString();
 
                 window.timers.coins = window.createTimeout(time, 2500);
             }
