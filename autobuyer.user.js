@@ -5,8 +5,8 @@
 // @updateURL    https://github.com/oRastor/fut20-web-app/raw/master/autobuyer.user.js
 // @description  try to take over the world!
 // @author       Rastor
-// @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
-// @match        https://www.easports.com/fifa/ultimate-team/web-app/*
+// @match        https://www.ea.com/en-gb/fifa/ultimate-team/web-app/*
+// @match        https://www.ea.com/fifa/ultimate-team/web-app/*
 // @grant        none
 // ==/UserScript==
 
