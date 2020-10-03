@@ -2,8 +2,8 @@
 // ==UserScript==
 // @name         FUT21 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @updateURL    https://github.com/TiebeVercoutter/FIFA-21-Autobuyer/blob/master/autobuyer.js
+// @version      1.2
+// @updateURL    https://github.com/oRastor/fut21-web-app/raw/master/autobuyer.user.js
 // @description  FUT21 Autobuyer
 // @author       Rastor
 // @co-author    Tiebe_V
