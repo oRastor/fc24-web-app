@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         FUT 21 Autobuyer Menu with TamperMonkey
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.3
 // @updateURL    https://github.com/TiebeVercoutter/FIFA-21-Autobuyer/blob/master/autobuyermenu.js
 // @description  FUT Snipping Tool
+// @author       Rastor
 // @co-author    Tiebe_V
 // @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
 // @match        https://www.ea.com/fifa/ultimate-team/web-app/*
@@ -327,10 +328,11 @@
 
         var wait = [2, 5];
         if (jQuery('#ab_wait_time').val() !== '') {
-            wait = jQuery('#ab_wait_time').val().split('-');
+            wait = jQuery('#ab_wait_time').val().toString().split('-');
         }
         window.searchCount++;
-        return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + addedTime;
+        var wTime = Math.round(((Math.random() * (parseInt(wait[1]) - parseInt(wait[0]))) + parseInt(wait[0]))) * 1000;
+        return wTime + addedTime;
     };
 
     window.getTimerProgress = function (timer) {
