@@ -1,22 +1,17 @@
 // ==UserScript==
-// @name         FUT20 Autobuyer Menu
+// @name         FUT 21 Autobuyer Menu with TamperMonkey
 // @namespace    http://tampermonkey.net/
-// @version      0.6
-// @updateURL    https://github.com/oRastor/fut20-web-app/raw/master/menu.user.js
-// @description  try to take over the world!
-// @author       Rastor
-// @match        https://www.ea.com/en-gb/fifa/ultimate-team/web-app/*
+// @version      1.1
+// @updateURL    https://github.com/TiebeVercoutter/FIFA-21-Autobuyer/blob/master/autobuyermenu.js
+// @description  FUT Snipping Tool
+// @co-author    Tiebe_V
+// @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
 // @match        https://www.ea.com/fifa/ultimate-team/web-app/*
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
-
-    /**
-      -left UTMarketSearchFiltersViewController
-
-    */
 
     window.UTAutoBuyerViewController = function () {
         UTMarketSearchFiltersViewController.call(this);
@@ -32,7 +27,7 @@
         }
 
         window.autoBuyerActive = true;
-        window.notify('Autobyer Started');
+        window.notify('Autobuyer Started');
     }
 
     window.deactivateAutoBuyer = function() {
@@ -41,7 +36,7 @@
         }
 
         window.autoBuyerActive = false;
-        window.notify('Autobyer Stopped');
+        window.notify('Autobuyer Stopped');
     }
 
     utils.JS.inherits(UTAutoBuyerViewController, UTMarketSearchFiltersViewController)
@@ -180,7 +175,7 @@
                 var view = getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._view;
                 jQuery(view.__root.parentElement).prepend(
                     '<div id="InfoWrapper" class="ut-navigation-bar-view navbar-style-landscape">' +
-                    '   <h1 class="title">AUTOBUYER STATUS: <span id="ab_status"></span> | REQUEST COUNT: <span id="ab_request_count">0</span></h1>' + 
+                    '   <h1 class="title">STATUS: <span id="ab_status"></span> | COUNT: <span id="ab_request_count">0</span> | PROFIT: <span id="profit_count">0</span></h1>' +
                     '   <div class="view-navbar-clubinfo">' +
                     '       <div class="view-navbar-clubinfo-data">' +
                     '           <div class="view-navbar-clubinfo-name">' +
@@ -197,16 +192,16 @@
                     '           </div>' +
                     '       </div>' +
                     '   </div>' +
-                    '   <div class="view-navbar-currency" style="margin-left: 10px;">' + 
-                    '       <div class="view-navbar-currency-coins" id="ab_coins"></div>' + 
+                    '   <div class="view-navbar-currency" style="margin-left: 10px;">' +
+                    '       <div class="view-navbar-currency-coins" id="ab_coins"></div>' +
                     '   </div>' +
-                    '   <div class="view-navbar-clubinfo">' + 
+                    '   <div class="view-navbar-clubinfo">' +
                     '       <div class="view-navbar-clubinfo-data">' +
                     '           <span class="view-navbar-clubinfo-name">Sold Items: <span id="ab-sold-items"></span></span>' +
                     '           <span class="view-navbar-clubinfo-name">Unsold Items: <span id="ab-unsold-items"></span></span>' +
                     '       </div>' +
                     '   </div>' +
-                    '   <div class="view-navbar-clubinfo" style="border: none;">' + 
+                    '   <div class="view-navbar-clubinfo" style="border: none;">' +
                     '       <div class="view-navbar-clubinfo-data">' +
                     '           <span class="view-navbar-clubinfo-name">Available Items: <span id="ab-available-items"></span></span>' +
                     '           <span class="view-navbar-clubinfo-name">Active transfers: <span id="ab-active-transfers"></span></span>' +
@@ -223,46 +218,46 @@
             if (jQuery('.search-prices').first().length) {
                 if (!jQuery('#ab_buy_price').length) {
                     jQuery('.search-prices').first().append(
-                        '<div class="search-price-header">' + 
-                        '   <h1 class="secondary">AB Settings:</h1>'+
-                        '</div>' +
-                        '<div class="price-filter">' + 
-                        '   <div class="info">' + 
-                        '       <span class="secondary label">Sell Price:</span><br/><small>Recieve After Tax: <span id="sell_after_tax">0</span></small>' + 
-                        '   </div>' + 
-                        '   <div class="buttonInfo">' +
-                        '       <div class="inputBox">' + 
-                        '           <input type="tel" class="numericInput" id="ab_sell_price" placeholder="7000">' + 
-                        '       </div>' + 
-                        '   </div>' +
-                        '</div>' +
-                        '<div class="price-filter">' +
-                        '   <div class="info">' + 
-                        '       <span class="secondary label">Buy Price:</span>' + 
-                        '   </div>' + 
-                        '   <div class="buttonInfo">' + 
-                        '       <div class="inputBox">' + 
-                        '           <input type="tel" class="numericInput" id="ab_buy_price" placeholder="5000">' + 
-                        '       </div>' + 
-                        '   </div>' +
+                        '<div class="search-price-header">' +
+                        '   <h1 class="secondary">Settings:</h1>'+
                         '</div>' +
                         '<div class="price-filter">' +
                         '   <div class="info">' +
-                        '       <span class="secondary label">Wait Time:<br/><small>(random second range eg. 7-15)</small>:</span>' +
+                        '       <span class="secondary label">Sell Price:</span><br/><small>After Tax: <span id="sell_after_tax">0</span></small>' +
                         '   </div>' +
                         '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' +
-                        '           <input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-15">' +
+                        '           <input type="tel" class="numericInput" id="ab_sell_price">' +
                         '       </div>' +
                         '   </div>' +
                         '</div>' +
                         '<div class="price-filter">' +
                         '   <div class="info">' +
-                        '       <span class="secondary label">Min clear count:<br/><small>(clear sold items if count is not less than)</small>:</span>' +
+                        '       <span class="secondary label">Buy Price:</span>' +
                         '   </div>' +
                         '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' +
-                        '           <input type="tel" class="numericInput" id="ab_min_delete_count" placeholder="10">' +
+                        '           <input type="tel" class="numericInput" id="ab_buy_price">' +
+                        '       </div>' +
+                        '   </div>' +
+                        '</div>' +
+                        '<div class="price-filter">' +
+                        '   <div class="info">' +
+                        '       <span class="secondary label">Wait Time:<br/><small>(random wait time eg. 2-5)</small>:</span>' +
+                        '   </div>' +
+                        '   <div class="buttonInfo">' +
+                        '       <div class="inputBox">' +
+                        '           <input type="tel" class="numericInput" id="ab_wait_time" placeholder="2-5" value="2-5">' +
+                        '       </div>' +
+                        '   </div>' +
+                        '</div>' +
+                        '<div class="price-filter">' +
+                        '   <div class="info">' +
+                        '       <span class="secondary label">Min clear count:<br/><small>(clear sold items)</small>:</span>' +
+                        '   </div>' +
+                        '   <div class="buttonInfo">' +
+                        '       <div class="inputBox">' +
+                        '           <input type="tel" class="numericInput" id="ab_min_delete_count" placeholder="10" value="10">' +
                         '       </div>' +
                         '   </div>' +
                         '</div>' +
@@ -272,7 +267,7 @@
                         '   </div>' +
                         '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' +
-                        '           <input type="text" class="numericInput" id="ab_max_purchases" placeholder="3">' +
+                        '           <input type="text" class="numericInput" id="ab_max_purchases" placeholder="3" value="3">' +
                         '       </div>' +
                         '   </div>' +
                         '</div>'
@@ -320,18 +315,22 @@
         services.Notification.queue([message, enums.UINotificationType.POSITIVE])
     };
 
+    window.badNotify = function(message) {
+        services.Notification.queue([message, enums.UINotificationType.NEGATIVE])
+    };
+
     window.getRandomWait = function() {
-        var addedTime = 0;
+        var addedTime = 1000;
         if (window.searchCount % 15 === 0) {
-            addedTime = 10000;
+            addedTime = 3000;
         }
 
-        var wait = [7, 15];
+        var wait = [2, 5];
         if (jQuery('#ab_wait_time').val() !== '') {
             wait = jQuery('#ab_wait_time').val().split('-');
         }
         window.searchCount++;
-        return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + 5000 + addedTime;
+        return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + addedTime;
     };
 
     window.getTimerProgress = function (timer) {
@@ -347,6 +346,8 @@
         jQuery('#ab_request_count').html(window.searchCount);
 
         jQuery('#ab_coins').html(window.futStatistics.coins);
+
+        jQuery('#profit_count').css('color', '#2cbe2d').html(window.profit);
 
         if (window.autoBuyerActive) {
             jQuery('#ab_status').css('color', '#2cbe2d').html('RUNNING');
