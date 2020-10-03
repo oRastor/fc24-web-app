@@ -6,7 +6,7 @@
 // @updateURL    https://github.com/TiebeVercoutter/FIFA-20-Autobuyer/blob/master/autobuyer.js
 // @description  FUT Snipping Tool
 // @author       Rastor
-// @author       Tiebe_V
+// @co-author    Tiebe_V
 // @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
 // @match        https://www.ea.com/fifa/ultimate-team/web-app/*
 // @grant        none
