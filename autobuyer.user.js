@@ -1,10 +1,11 @@
 
 // ==UserScript==
-// @name         FUT 21 Autobuyer with TamperMonkey
+// @name         FUT21 Autobuyer
 // @namespace    http://tampermonkey.net/
 // @version      1.1
 // @updateURL    https://github.com/TiebeVercoutter/FIFA-21-Autobuyer/blob/master/autobuyer.js
-// @description  FUT Snipping Tool
+// @description  FUT21 Autobuyer
+// @author       Rastor
 // @co-author    Tiebe_V
 // @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
 // @match        https://www.ea.com/fifa/ultimate-team/web-app/*
