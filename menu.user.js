@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT 21 Autobuyer Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @updateURL    https://github.com/oRastor/fut21-web-app/raw/master/menu.user.js
 // @description  FUT21 Autobuyer
 // @author       Rastor
@@ -328,10 +328,11 @@
 
         var wait = [2, 5];
         if (jQuery('#ab_wait_time').val() !== '') {
-            wait = jQuery('#ab_wait_time').val().split('-');
+            wait = jQuery('#ab_wait_time').val().toString().split('-');
         }
         window.searchCount++;
-        return (Math.round((Math.random() * (wait[1] - wait[0]) + wait[0])) * 1000) + addedTime;
+        var wTime = Math.round(((Math.random() * (parseInt(wait[1]) - parseInt(wait[0]))) + parseInt(wait[0]))) * 1000;
+        return wTime + addedTime;
     };
 
     window.getTimerProgress = function (timer) {
