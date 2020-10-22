@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         FUT21 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.4.1
 // @updateURL    https://github.com/oRastor/fut21-web-app/raw/master/fut21-autobuyer.user.js
 // @description  FUT21 Autobuyer
 // @author       Rastor
@@ -123,11 +123,13 @@
                         }
                     }
                 };
-            }
-            else {
-                writeToLog('WARNING!');
+            } else {
+                writeToLog('Warning: Search request failed! Please, reload the page and solve the puzzle as soon as possible!');
                 window.autoBuyerActive = false;
-                window.badNotify('Autobuyer failed!');
+
+                var alarmSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+                alarmSound.loop = true;
+                alarmSound.play();
             }
         }));
     }
