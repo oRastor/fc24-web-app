@@ -8,3 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  
 ### Added
 - alarm sound effect if puzzle solving process requested
+
+## [1.4.2] - 2020-12-16
+ 
+### Changed
+- disable by default auto-clear sold items functionality
+- increase default search interval
