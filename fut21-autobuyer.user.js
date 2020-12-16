@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         FUT21 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.4.1
+// @version      1.4.2
 // @updateURL    https://github.com/oRastor/fut21-web-app/raw/master/fut21-autobuyer.user.js
 // @description  FUT21 Autobuyer
 // @author       Rastor
@@ -192,12 +192,12 @@
                 return item.getAuctionData().isInactive();
             }).length;
 
-            var minSoldCount = 10;
+            var minSoldCount = 0;
             if ($('#ab_min_delete_count').val() !== '') {
                 minSoldCount = Math.max(1, parseInt($('#ab_min_delete_count').val()));
             }
 
-            if (window.futStatistics.soldItems >= minSoldCount) {
+            if (minSoldCount > 0 && window.futStatistics.soldItems >= minSoldCount) {
                 writeToLog(window.futStatistics.soldItems + " item(s) sold");
                 window.clearSoldItems();
             }
@@ -453,7 +453,7 @@
                         '   </div>' +
                         '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' +
-                        '           <input type="tel" class="numericInput" id="ab_wait_time" placeholder="2-5" value="2-5">' +
+                        '           <input type="tel" class="numericInput" id="ab_wait_time" placeholder="7-12" value="7-12">' +
                         '       </div>' +
                         '   </div>' +
                         '</div>' +
@@ -463,7 +463,7 @@
                         '   </div>' +
                         '   <div class="buttonInfo">' +
                         '       <div class="inputBox">' +
-                        '           <input type="tel" class="numericInput" id="ab_min_delete_count" placeholder="10" value="10">' +
+                        '           <input type="tel" class="numericInput" id="ab_min_delete_count" placeholder="" value="">' +
                         '       </div>' +
                         '   </div>' +
                         '</div>' +
