@@ -1,6 +1,6 @@
-# fut21-web-app 
+# fut22-web-app 
 
-Tampermonkey scripts for FUT 21 autobuyer functionality.
+Tampermonkey scripts for FUT 22 autobuyer functionality.
 
 ONLY for player search (non consumables and other shit)!
 
