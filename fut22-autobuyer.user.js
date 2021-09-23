@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         FUT22 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.4.4
+// @version      1.4.5
 // @updateURL    https://github.com/oRastor/fut22-web-app/raw/master/fut22-autobuyer.user.js
 // @description  FUT21 Autobuyer
 // @author       Rastor
@@ -543,11 +543,11 @@
     };
 
     window.notify = function(message) {
-        services.Notification.queue([message, enums.UINotificationType.POSITIVE])
+        services.Notification.queue([message, UINotificationType.POSITIVE])
     };
 
     window.badNotify = function(message) {
-        services.Notification.queue([message, enums.UINotificationType.NEGATIVE])
+        services.Notification.queue([message, UINotificationType.NEGATIVE])
     };
 
     window.getRandomWait = function() {
