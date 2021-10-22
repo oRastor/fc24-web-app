@@ -14,3 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - disable by default auto-clear sold items functionality
 - increase default search interval
+
+## [1.5.1] - 2020-12-16
+ 
+### Changed
+- add adjust mode
