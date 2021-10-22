@@ -8,6 +8,8 @@ The software is provided "as is" without warranty of any kind, either express or
 
 **All questions that I cannot answer (for obvious reasons, I am not responsible for the server side of the application) will be closed.**
 
+[Wiki](https://github.com/oRastor/fut22-web-app/wiki)
+
 [Patreon](https://www.patreon.com/fut22_automatic)
 
 [Changelog](https://github.com/oRastor/fut21-web-app/blob/master/CHANGELOG.md)
