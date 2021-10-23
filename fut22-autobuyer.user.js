@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT22 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.5.1
+// @version      1.5.2
 // @updateURL    https://github.com/oRastor/fut22-web-app/raw/master/fut22-autobuyer.user.js
 // @description  FUT22 Autobuyer
 // @author       Rastor
@@ -1016,18 +1016,12 @@
     };
 
     window.getRandomWait = function () {
-        var addedTime = 1000;
-        if (window.searchCount % 15 === 0) {
-            addedTime = 3000;
-        }
-
         var wait = [2, 5];
-        if (jQuery('#ab_wait_time').val() !== '') {
+        if ($('#ab_wait_time').val() !== '') {
             wait = jQuery('#ab_wait_time').val().toString().split('-');
         }
         window.searchCount++;
-        var wTime = Math.round(((Math.random() * (parseInt(wait[1]) - parseInt(wait[0]))) + parseInt(wait[0]))) * 1000;
-        return wTime + addedTime;
+        return Math.round(((Math.random() * (parseInt(wait[1]) - parseInt(wait[0]))) + parseInt(wait[0]))) * 1000;
     };
 
     window.getTimerProgress = function (timer) {
