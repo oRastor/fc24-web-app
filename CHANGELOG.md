@@ -19,3 +19,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  
 ### Changed
 - add adjust mode
+
+## [1.5.2] - 2021-10-23
+ 
+### Changed
+- remove added time from waiting period
