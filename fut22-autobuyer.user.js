@@ -49,7 +49,7 @@
         ADJUST: "adjust"
     };
 
-    window.autobuyerVersion = 'v1.5.1';
+    window.autobuyerVersion = 'v1.5.2';
     window.searchCount = 0;
     window.profit = 0
     window.sellList = [];
