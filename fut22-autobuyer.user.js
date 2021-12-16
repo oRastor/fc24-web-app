@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT22 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.5.2
+// @version      1.5.3
 // @updateURL    https://github.com/oRastor/fut22-web-app/raw/master/fut22-autobuyer.user.js
 // @description  FUT22 Autobuyer
 // @author       Rastor
@@ -610,7 +610,7 @@
     window.UTAutoBuyerViewController.prototype.init = function init() {
         if (!this.initialized) {
             //getAppMain().superclass(),
-            this._viewmodel || (this._viewmodel = new viewmodels.BucketedItemSearch),
+            this._viewmodel || (this._viewmodel = new UTBucketedItemSearchViewModel),
             this._viewmodel.searchCriteria.type === window.old.enums.SearchType.ANY && (this._viewmodel.searchCriteria.type = window.old.enums.SearchType.PLAYER);
             var count = UTTransferMarketPaginationViewModel.prototype.getNumItemsPerPage() + 1;
             this._viewmodel.searchCriteria.count = count,
