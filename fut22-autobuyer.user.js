@@ -1,13 +1,14 @@
 // ==UserScript==
-// @name         FUT22 Autobuyer
+// @name         FUT23 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.5.3
+// @version      1.5.4
 // @updateURL    https://github.com/oRastor/fut22-web-app/raw/master/fut22-autobuyer.user.js
-// @description  FUT22 Autobuyer
+// @description  FUT23 Autobuyer
 // @author       Rastor
 // @co-author    Tiebe_V
 // @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
 // @match        https://www.ea.com/fifa/ultimate-team/web-app/*
+// @require      https://code.jquery.com/jquery-3.6.0.min.js
 // @grant        none
 // ==/UserScript==
 
