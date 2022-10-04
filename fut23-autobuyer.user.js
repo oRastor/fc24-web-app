@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT23 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.6.1
+// @version      1.6.2
 // @updateURL    https://github.com/oRastor/fut23-web-app/raw/master/fut23-autobuyer.user.js
 // @description  FUT23 Autobuyer
 // @author       Rastor
@@ -47,7 +47,7 @@
         ADJUST: "adjust"
     };
 
-    window.autobuyerVersion = 'v1.6.1';
+    window.autobuyerVersion = 'v1.6.2';
     window.searchCount = 0;
     window.profit = 0
     window.sellList = [];
@@ -888,6 +888,10 @@
                 '</div>' +
                 '</div>'
             );
+
+            $(document).on('change keyup', '#ab_sell_price', function() {
+                window.updateAfterTaxValue()
+            });
 
             window.showAutobuyerInfo();
         });
