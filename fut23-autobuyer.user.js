@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FUT23 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.5.5
+// @version      1.6.0
 // @updateURL    https://github.com/oRastor/fut23-web-app/raw/master/fut23-autobuyer.user.js
 // @description  FUT23 Autobuyer
 // @author       Rastor
