@@ -14,9 +14,6 @@
 
 (function () {
     'use strict';
-    window.getMaxSearchBid = function (min, max) {
-        return Math.round((Math.random() * (max - min) + min) / 1000) * 1000;
-    };
 
     window.old = {
         'utils': {
@@ -50,7 +47,7 @@
         ADJUST: "adjust"
     };
 
-    window.autobuyerVersion = 'v1.5.5';
+    window.autobuyerVersion = 'v1.6.0';
     window.searchCount = 0;
     window.profit = 0
     window.sellList = [];
@@ -96,19 +93,19 @@
         if (window.autoBuyerStatus === window.AB_STATUSES.ACTIVE || window.autoBuyerStatus === window.AB_STATUSES.ADJUST) {
             var time = (new Date()).getTime();
 
-            if (window.timers.search.finish == 0 || window.timers.search.finish <= time) {
+            if (window.timers.search.finish === 0 || window.timers.search.finish <= time) {
                 window.searchFutMarket(null, null, null);
 
                 window.timers.search = window.createTimeout(time, window.getRandomWait());
             }
 
-            if (window.timers.coins.finish == 0 || window.timers.coins.finish <= time) {
+            if (window.timers.coins.finish === 0 || window.timers.coins.finish <= time) {
                 window.futStatistics.coins = services.User.getUser().coins.amount.toLocaleString();
 
                 window.timers.coins = window.createTimeout(time, 2500);
             }
 
-            if (window.timers.transferList.finish == 0 || window.timers.transferList.finish <= time) {
+            if (window.timers.transferList.finish === 0 || window.timers.transferList.finish <= time) {
                 window.updateTransferList();
 
                 window.timers.transferList = window.createTimeout(time, 30000);
@@ -136,16 +133,37 @@
         return auction.currentBid;
     }
 
+    window.getMaxSearchBid = function (min, max) {
+        return Math.round((Math.random() * (max - min) + min) / 1000) * 1000;
+    };
+
+    window.prepareSearchCriteria = function(searchCriteria) {
+        var minBidPriceThreshold = $('#ab_min_bid_price_threshold').val()
+        var minBuyNowPriceThreshold = $('#ab_min_buy_now_threshold').val()
+
+        this.setMaxBidPrice(window.getMaxSearchBid(10000000, 1500000))
+
+        window.setMinBuyPrice(window.getNextPrice(searchCriteria.minBuy))
+        if (searchCriteria.minBuy > minBuyNowPriceThreshold) {
+            window.setMinBidPrice(window.getNextPrice(searchCriteria.minBid));
+            window.setMinBuyPrice(window.getNextPrice(searchCriteria.minBid))
+
+            if (searchCriteria.minBuy > minBuyNowPriceThreshold || searchCriteria.minBid > minBidPriceThreshold) {
+                window.setMinBuyPrice(null)
+                window.setMinBidPrice(null)
+            }
+        }
+
+        return searchCriteria
+    }
+
     window.searchFutMarket = function (sender, event, data) {
         if (window.autoBuyerStatus === window.AB_STATUSES.IDLE) {
             return;
         }
 
-        var searchCriteria = window.autobuyerController._viewmodel.searchCriteria;
-
-        searchCriteria.maxBid = window.getMaxSearchBid(300000, 800000);
-
         services.Item.clearTransferMarketCache();
+        var searchCriteria = window.prepareSearchCriteria(window.autobuyerController._viewmodel.searchCriteria)
 
         services.Item.searchTransferMarket(searchCriteria, 1).observe(this, (function (sender, response) {
             if (response.success) {
@@ -436,6 +454,27 @@
         window.autoBuyerStatus = window.AB_STATUSES.ACTIVE;
     }
 
+    window.setMinBidPrice = function (value) {
+        $('.search-prices').first().find('.ut-number-input-control')[0].value = value;
+
+        var searchCriteria = window.autobuyerController._viewmodel.searchCriteria;
+        searchCriteria.minBid = value;
+    }
+
+    window.setMaxBidPrice = function (value) {
+        $('.search-prices').first().find('.ut-number-input-control')[1].value = value;
+
+        var searchCriteria = window.autobuyerController._viewmodel.searchCriteria;
+        searchCriteria.maxBid = value;
+    }
+
+    window.setMinBuyPrice = function (value) {
+        $('.search-prices').first().find('.ut-number-input-control')[2].value = value;
+
+        var searchCriteria = window.autobuyerController._viewmodel.searchCriteria;
+        searchCriteria.minBuy = value;
+    }
+
     window.setMaxBuyPrice = function (value) {
         $('.search-prices').first().find('.ut-number-input-control')[3].value = value;
 
@@ -480,6 +519,10 @@
     }
 
     window.getNextPrice = function (bin) {
+        if (bin < 150) {
+            return 150;
+        }
+
         if (bin < 1000) {
             return bin + 50;
         }
@@ -525,19 +568,19 @@
 
     window.updateTransferList = function () {
         services.Item.requestTransferItems().observe(this, function (t, response) {
-            window.futStatistics.soldItems = response.data.items.filter(function (item) {
+            window.futStatistics.soldItems = response.response.items.filter(function (item) {
                 return item.getAuctionData().isSold();
             }).length;
 
-            window.futStatistics.unsoldItems = response.data.items.filter(function (item) {
+            window.futStatistics.unsoldItems = response.response.items.filter(function (item) {
                 return !item.getAuctionData().isSold() && item.getAuctionData().isExpired();
             }).length;
 
-            window.futStatistics.activeTransfers = response.data.items.filter(function (item) {
+            window.futStatistics.activeTransfers = response.response.items.filter(function (item) {
                 return item.getAuctionData().isSelling();
             }).length;
 
-            window.futStatistics.availableItems = response.data.items.filter(function (item) {
+            window.futStatistics.availableItems = response.response.items.filter(function (item) {
                 return item.getAuctionData().isInactive();
             }).length;
 
@@ -554,8 +597,7 @@
     }
 
     window.clearSoldItems = function () {
-        services.Item.clearSoldItems().observe(this, function (t, response) {
-        });
+        UTTransferListViewController.prototype._clearSold();
     }
 
     window.setAdjustMode = function () {
@@ -730,6 +772,28 @@
                 '</div>' +
                 '<div class="price-filter">' +
                 '   <div class="info">' +
+                '       <span class="secondary label">Min Bid Price Threshold:</span>' +
+                '       <br/><small>For cache reset iterations</small>' +
+                '   </div>' +
+                '   <div class="buttonInfo">' +
+                '       <div class="inputBox">' +
+                '           <input type="tel" class="ut-number-input-control" id="ab_min_bid_price_threshold" value="200">' +
+                '       </div>' +
+                '   </div>' +
+                '</div>' +
+                '<div class="price-filter">' +
+                '   <div class="info">' +
+                '       <span class="secondary label">Min Buy Now Threshold:</span>' +
+                '       <br/><small>For cache reset iterations</small>' +
+                '   </div>' +
+                '   <div class="buttonInfo">' +
+                '       <div class="inputBox">' +
+                '           <input type="tel" class="ut-number-input-control" id="ab_min_buy_now_threshold" value="350">' +
+                '       </div>' +
+                '   </div>' +
+                '</div>' +
+                '<div class="price-filter">' +
+                '   <div class="info">' +
                 '       <span class="secondary label">Wait Time:<br/><small>(random wait time eg. 2-5)</small>:</span>' +
                 '   </div>' +
                 '   <div class="buttonInfo">' +
@@ -744,7 +808,7 @@
                 '   </div>' +
                 '   <div class="buttonInfo">' +
                 '       <div class="inputBox">' +
-                '           <input type="tel" class="ut-number-input-control" id="ab_min_delete_count" placeholder="" value="">' +
+                '           <input type="tel" class="ut-number-input-control" id="ab_min_delete_count" placeholder="" value="10">' +
                 '       </div>' +
                 '   </div>' +
                 '</div>' +
@@ -801,7 +865,7 @@
                 '   </div>' +
                 '   <div class="buttonInfo">' +
                 '       <div class="inputBox">' +
-                '           <input type="tel" class="ut-number-input-control" id="ab_adjust_min_expire_period" value="30">' +
+                '           <input type="tel" class="ut-number-input-control" id="ab_adjust_min_expire_period" value="50">' +
                 '       </div>' +
                 '   </div>' +
                 '</div>' +
