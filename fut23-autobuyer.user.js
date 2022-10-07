@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         FUT23 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.6.2
+// @version      1.6.3
 // @updateURL    https://github.com/oRastor/fut23-web-app/raw/master/fut23-autobuyer.user.js
 // @description  FUT23 Autobuyer
 // @author       Rastor
 // @co-author    Tiebe_V
-// @match        https://www.easports.com/uk/fifa/ultimate-team/web-app/*
+// @match        https://www.easports.com/*/fifa/ultimate-team/web-app/*
 // @match        https://www.ea.com/fifa/ultimate-team/web-app/*
 // @require      https://code.jquery.com/jquery-3.6.0.min.js
 // @grant        none
@@ -47,7 +47,7 @@
         ADJUST: "adjust"
     };
 
-    window.autobuyerVersion = 'v1.6.2';
+    window.autobuyerVersion = 'v1.6.3';
     window.searchCount = 0;
     window.profit = 0
     window.sellList = [];
@@ -568,9 +568,15 @@
 
     window.updateTransferList = function () {
         services.Item.requestTransferItems().observe(this, function (t, response) {
-            window.futStatistics.soldItems = response.response.items.filter(function (item) {
+            var soldItems = response.response.items.filter(function (item) {
                 return item.getAuctionData().isSold();
             }).length;
+
+            if (window.futStatistics.soldItems !== soldItems) {
+                services.User.requestCurrencies();
+            }
+
+            window.futStatistics.soldItems = soldItems;
 
             window.futStatistics.unsoldItems = response.response.items.filter(function (item) {
                 return !item.getAuctionData().isSold() && item.getAuctionData().isExpired();
