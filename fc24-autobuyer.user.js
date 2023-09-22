@@ -1,13 +1,13 @@
 // ==UserScript==
-// @name         FUT23 Autobuyer
+// @name         FC24 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.6.3
-// @updateURL    https://github.com/oRastor/fut23-web-app/raw/master/fut23-autobuyer.user.js
-// @description  FUT23 Autobuyer
+// @version      1.6.4
+// @updateURL    https://github.com/oRastor/fc24-web-app/raw/master/fc24-autobuyer.user.js
+// @description  FC24 Autobuyer
 // @author       Rastor
 // @co-author    Tiebe_V
-// @match        https://www.easports.com/*/fifa/ultimate-team/web-app/*
-// @match        https://www.ea.com/fifa/ultimate-team/web-app/*
+// @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/
+// @match        https://www.ea.com/*/ea-sports-fc/ultimate-team/web-app/
 // @require      https://code.jquery.com/jquery-3.6.0.min.js
 // @grant        none
 // ==/UserScript==
@@ -707,13 +707,6 @@
                 '<div id="InfoWrapper" class="ut-navigation-bar-view navbar-style-landscape">' +
                 '   <h1 class="title">STATUS: <span id="ab_status"></span> | COUNT: <span id="ab_request_count">0</span> | PROFIT: <span id="profit_count">0</span></h1>' +
                 '   <div class="view-navbar-clubinfo" style="border: none;">' +
-                '     <a href="https://www.patreon.com/fut22_automatic" style="color: rgb(255, 66, 77); margin-right: 20px;" target="_blank">' +
-                '       <svg height="32px" width="32px" version="1.1" viewBox="0 0 569 546" style="fill: rgb(255, 66, 77);" xmlns="http://www.w3.org/2000/svg">' +
-                '           <title>Patreon logo</title>' +
-                '           <g><circle cx="362.589996" cy="204.589996" data-fill="1" r="204.589996"></circle><rect data-fill="1" height="545.799988" width="100" x="0" y="0"></rect></g>' +
-                '       </svg>' +
-                '       <div style="float: right; margin-left: 10px; text-align: center;">Support on<br/> Patreon</div>' +
-                '     </a>' +
                 '     <span style="text-decoration: underline; cursor: pointer;" onclick="window.showAutobuyerInfo()">' + window.autobuyerVersion + '</span>' +
                 '   </div>' +
                 '   <div class="view-navbar-clubinfo">' +
