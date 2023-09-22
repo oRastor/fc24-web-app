@@ -62,7 +62,7 @@
     window.adjustTopLimit = 13;
     window.adjustMinProfit = 50;
     window.tradeMode = 'buy';
-    window.futInfo = 'FUT-23 Autobyer software https://github.com/oRastor/fut23-web-app';
+    window.futInfo = 'FC-24 Autobyer software https://github.com/oRastor/fc24-web-app';
     window.futCheck = 1875;
     window.futSearchCount = 21;
 
