@@ -24,3 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  
 ### Changed
 - remove added time from waiting period
+
+## [1.7.0] - 2023-09-24
+
+### Changed
+- added queue for selling items, earlier only one item can be sold during one buy session

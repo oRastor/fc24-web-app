@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FC24 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.6.4
+// @version      1.7.0
 // @updateURL    https://github.com/oRastor/fc24-web-app/raw/master/fc24-autobuyer.user.js
 // @description  FC24 Autobuyer
 // @author       Rastor
@@ -47,10 +47,10 @@
         ADJUST: "adjust"
     };
 
-    window.autobuyerVersion = 'v1.6.3';
+    window.autobuyerVersion = 'v1.7.0';
     window.searchCount = 0;
     window.profit = 0
-    window.sellList = [];
+    window.sellQueue = [];
     window.adjust = {};
     window.adjustBasePriceDetected = null;
     window.adjustSellPrice = null;
@@ -508,14 +508,17 @@
                 if (sellPrice !== 0 && !isNaN(sellPrice)) {
                     writeToLog(' -- Selling for: ' + sellPrice);
                     window.profit += (sellPrice / 100 * 95) - price;
-                    window.sellRequestTimeout = window.setTimeout(function () {
-                        services.Item.list(item, window.getPreviousPrice(sellPrice), sellPrice, 3600);
-                    }, window.getRandomWait());
+
+                    window.sellQueue.push([item, sellPrice, 3600]);
                 }
             } else {
                 writeToLog(item._staticData.firstName + ' ' + item._staticData.lastName + ' [' + item._auction.tradeId + '] ' + price + ' buy failed');
             }
         }));
+    }
+
+    window.pushToSellQueue = function (item, price, period) {
+        window.sellQueue.push([item, price, period]);
     }
 
     window.getNextPrice = function (bin) {
@@ -1061,6 +1064,18 @@
     window.setInterval(function () {
         showAutobuyerInfo();
     }, 600000);
+
+    window.setInterval(function () {
+        if (window.autoBuyerStatus === window.AB_STATUSES.IDLE) {
+            return;
+        }
+
+        var sellItem = window.sellQueue.pop()
+
+        if (sellItem) {
+            services.Item.list(sellItem[0], window.getPreviousPrice(sellItem[1]), sellItem[1], sellItem[2]);
+        }
+    }, 3000);
 
     window.hasLoadedAll = false;
     window.searchCount = 0;
