@@ -8,4 +8,4 @@ The software is provided "as is" without warranty of any kind, either express or
 
 Actual setup link: https://github.com/oRastor/fc24-web-app/raw/master/fc24-autobuyer.user.js (if don't know how - read wiki)
 
-[Wiki](https://github.com/oRastor/fc24-web-app/wiki) | [Changelog](https://github.com/oRastor/fc24-web-app/blob/master/CHANGELOG.md)
+[Wiki](https://github.com/oRastor/fc24-web-app/wiki) | [Discord](https://discord.gg/thu4bDqX) | [Changelog](https://github.com/oRastor/fc24-web-app/blob/master/CHANGELOG.md)
