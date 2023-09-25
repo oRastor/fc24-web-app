@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FC24 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.7.1
+// @version      1.8.0
 // @updateURL    https://github.com/oRastor/fc24-web-app/raw/master/fc24-autobuyer.user.js
 // @description  FC24 Autobuyer
 // @author       Rastor
@@ -47,7 +47,7 @@
         ADJUST: "adjust"
     };
 
-    window.autobuyerVersion = 'v1.7.1';
+    window.autobuyerVersion = 'v1.8.0';
     window.searchCount = 0;
     window.profit = 0
     window.sellQueue = [];
@@ -501,13 +501,25 @@
     }
 
     window.buyItem = function (item, price) {
+        if (!filterBuy(item)) {
+            writeToLog(name + ' [' + item._auction.tradeId + '] ' + price + " Skip");
+            return;
+        }
+
         services.Item.bid(item, price).observe(this, (function (sender, data) {
+            var name = itemName(item._staticData)
+
             if (data.success) {
-                writeToLog(item._staticData.firstName + ' ' + item._staticData.lastName + ' [' + item._auction.tradeId + '] ' + price + " Bought");
+                writeToLog(name + ' [' + item._auction.tradeId + '] ' + price + " Bought");
 
                 if ($('#buy_sound').prop("checked")) {
                     var buySound = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
                     buySound.play();
+                }
+
+                if (!filterSell(item)) {
+                    writeToLog(' -- Hold');
+                    return;
                 }
 
                 var sellPrice = parseInt($('#ab_sell_price').val());
@@ -518,13 +530,57 @@
                     window.sellQueue.push([item, sellPrice, 3600]);
                 }
             } else {
-                writeToLog(item._staticData.firstName + ' ' + item._staticData.lastName + ' [' + item._auction.tradeId + '] ' + price + ' buy failed');
+                writeToLog(name + ' [' + item._auction.tradeId + '] ' + price + ' buy failed');
             }
         }));
     }
 
     window.pushToSellQueue = function (item, price, period) {
         window.sellQueue.push([item, price, period]);
+    }
+
+    window.filterBuy = function (item) {
+        var name = itemName(item._staticData);
+        var allowList = prepareList($('#ab_buy_allow_filter').val());
+
+        if (allowList.length) {
+            return nameContains(name, allowList);
+        }
+
+        var denyList = prepareList($('#ab_buy_deny_filter').val());
+        if (denyList.length) {
+            return !nameContains(name, denyList);
+        }
+
+        return true;
+    }
+
+    window.filterSell = function (item) {
+        var name = itemName(item._staticData);
+        var allowList = prepareList($('#ab_sell_allow_filter').val());
+
+        if (allowList.length) {
+            return nameContains(name, allowList);
+        }
+
+        var denyList = prepareList($('#ab_sell_deny_filter').val());
+        if (denyList.length) {
+            return !nameContains(name, denyList);
+        }
+
+        return true;
+    }
+
+    window.prepareList = function (value) {
+        if (!value || !value.length) {
+            return [];
+        }
+
+        return value.split(',').map((v) => v.trim().toLowerCase());
+    }
+
+    window.nameContains = function (name, words) {
+        return words.filter((word) => name.toLowerCase().indexOf(word) !== -1).length > 0;
     }
 
     window.getNextPrice = function (bin) {
@@ -798,7 +854,7 @@
                 '</div>' +
                 '<div class="price-filter">' +
                 '   <div class="info">' +
-                '       <span class="secondary label">Min Buy Now Threshold:</span>' +
+                '       <span class="secondary label">Max Buy Now Threshold:</span>' +
                 '       <br/><small>For cache reset iterations</small>' +
                 '   </div>' +
                 '   <div class="buttonInfo">' +
@@ -844,6 +900,53 @@
                 '<div class="price-filter" style="padding: 15px 5px;">' +
                 '   <input type="checkbox" id="buy_sound" name="buy_sound" checked>' +
                 '   <label for="buy_sound">Buy Sound</label>' +
+                '</div>' +
+                '<div class="search-price-header">' +
+                '   <h1 class="secondary">Filter settings:</h1>' +
+                '</div>' +
+                '<div class="price-filter">' +
+                '   <div class="info">' +
+                '       <span class="secondary label">Buy allow filter:</span>' +
+                '       <br/><small>if name contains, not using if empty, higher priority</small>' +
+                '   </div>' +
+                '   <div class="buttonInfo">' +
+                '       <div class="inputBox">' +
+                '           <textarea type="tel" class="ut-number-input-control" id="ab_buy_allow_filter" placeholder="messi, rash" style="background-color: #0f0f0f; color: #fcfcf7; width: 100%; height: 70px;"></textarea>' +
+                '       </div>' +
+                '   </div>' +
+                '</div>' +
+                '<div class="price-filter">' +
+                '   <div class="info">' +
+                '       <span class="secondary label">Buy deny filter:</span>' +
+                '       <br/><small>if name contains, not using if empty</small>' +
+                '   </div>' +
+                '   <div class="buttonInfo">' +
+                '       <div class="inputBox">' +
+                '           <textarea class="ut-number-input-control" id="ab_buy_deny_filter" placeholder="messi, rash" style="background-color: #0f0f0f; color: #fcfcf7; width: 100%; height: 70px;"></textarea>' +
+                '       </div>' +
+                '   </div>' +
+                '</div>' +
+                '<div class="price-filter">' +
+                '   <div class="info">' +
+                '       <span class="secondary label">Sell allow filter:</span>' +
+                '       <br/><small>if name contains, not using if empty, higher priority</small>' +
+                '   </div>' +
+                '   <div class="buttonInfo">' +
+                '       <div class="inputBox">' +
+                '           <textarea type="tel" class="ut-number-input-control" id="ab_sell_allow_filter" placeholder="messi, rash" style="background-color: #0f0f0f; color: #fcfcf7; width: 100%; height: 70px;"></textarea>' +
+                '       </div>' +
+                '   </div>' +
+                '</div>' +
+                '<div class="price-filter">' +
+                '   <div class="info">' +
+                '       <span class="secondary label">Sell deny filter:</span>' +
+                '       <br/><small>if name contains, not using if empty</small>' +
+                '   </div>' +
+                '   <div class="buttonInfo">' +
+                '       <div class="inputBox">' +
+                '           <textarea class="ut-number-input-control" id="ab_sell_deny_filter" placeholder="messi, rash" style="background-color: #0f0f0f; color: #fcfcf7; width: 100%; height: 70px;"></textarea>' +
+                '       </div>' +
+                '   </div>' +
                 '</div>' +
                 '<div class="search-price-header">' +
                 '   <h1 class="secondary">Adjust settings:</h1>' +
