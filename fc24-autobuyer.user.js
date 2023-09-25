@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FC24 Autobuyer
 // @namespace    http://tampermonkey.net/
-// @version      1.7.0
+// @version      1.7.1
 // @updateURL    https://github.com/oRastor/fc24-web-app/raw/master/fc24-autobuyer.user.js
 // @description  FC24 Autobuyer
 // @author       Rastor
@@ -47,7 +47,7 @@
         ADJUST: "adjust"
     };
 
-    window.autobuyerVersion = 'v1.7.0';
+    window.autobuyerVersion = 'v1.7.1';
     window.searchCount = 0;
     window.profit = 0
     window.sellQueue = [];
@@ -504,6 +504,12 @@
         services.Item.bid(item, price).observe(this, (function (sender, data) {
             if (data.success) {
                 writeToLog(item._staticData.firstName + ' ' + item._staticData.lastName + ' [' + item._auction.tradeId + '] ' + price + " Bought");
+
+                if ($('#buy_sound').prop("checked")) {
+                    var buySound = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+                    buySound.play();
+                }
+
                 var sellPrice = parseInt($('#ab_sell_price').val());
                 if (sellPrice !== 0 && !isNaN(sellPrice)) {
                     writeToLog(' -- Selling for: ' + sellPrice);
@@ -834,6 +840,10 @@
                 '<div class="price-filter">' +
                 '   <input type="checkbox" id="adjust_mode" name="adjust_mode" checked>' +
                 '   <label for="adjust_mode">Adjust mode</label>' +
+                '</div>' +
+                '<div class="price-filter" style="padding: 15px 5px;">' +
+                '   <input type="checkbox" id="buy_sound" name="buy_sound" checked>' +
+                '   <label for="buy_sound">Buy Sound</label>' +
                 '</div>' +
                 '<div class="search-price-header">' +
                 '   <h1 class="secondary">Adjust settings:</h1>' +

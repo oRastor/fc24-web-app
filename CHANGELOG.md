@@ -29,3 +29,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - added queue for selling items, earlier only one item can be sold during one buy session
+
+## [1.7.1] - 2023-09-25
+
+### Changed
+- added sound notification option after successful buy operation
